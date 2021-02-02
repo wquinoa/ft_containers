@@ -1,0 +1,22 @@
+#IncludeRegexLine: ^[ 	]*[#%][ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+/Users/user/p/ft_containers/BTree.hpp
+memory
+-
+iostream
+-
+vector
+-
+iomanip
+-
+
+/Users/user/p/ft_containers/main.cpp
+BTree.hpp
+/Users/user/p/ft_containers/BTree.hpp
+

@@ -13,7 +13,7 @@ class Vector
 {
  private:
 	typedef Allocator                                allocator_type;
-	typedef allocator_traits<allocator_type>         __alloc_traits;
+	typedef std::allocator_traits<allocator_type>         __alloc_traits;
 	typedef typename __alloc_traits::size_type       size_type;
 
  protected:
