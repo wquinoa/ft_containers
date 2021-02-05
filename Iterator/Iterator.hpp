@@ -37,7 +37,7 @@ namespace shitty
 	};
 
 	template<typename T>
-	struct IteratorTraits<T *> // specialize IteratorTraits for arrays
+	struct IteratorTraits<T *>
 	{
 		typedef ptrdiff_t					difference_type;
 		typedef T							value_type;
@@ -47,7 +47,7 @@ namespace shitty
 	};
 
 	template<typename T>
-	struct IteratorTraits<const T *> // specialize IteratorTraits for const arrays
+	struct IteratorTraits<const T *>
 	{
 		typedef ptrdiff_t					difference_type;
 		typedef T							value_type;
@@ -73,7 +73,7 @@ namespace shitty
 	 public:
 		const iterator_type &base() const
 		{
-			return this->ptr;
+			return ptr;
 		};
 
 		ReverseIterator() : ptr() {};
@@ -90,10 +90,6 @@ namespace shitty
 		{
 		}
 
-		Iter ptr() const
-		{
-			return ptr;
-		}
 
 		ReverseIterator<rit> &operator=(const ReverseIterator<rit> &other)
 		{
@@ -103,14 +99,14 @@ namespace shitty
 
 		ReverseIterator<rit> &operator++()
 		{
-			++ptr;
+			--ptr;
 			return *this;
 		}
 
 		ReverseIterator<rit> operator++(int)
 		{
 			ReverseIterator<rit> old(*this);
-			++ptr;
+			--ptr;
 			return old;
 		}
 
@@ -126,7 +122,7 @@ namespace shitty
 
 		ReverseIterator<rit> &operator--()
 		{
-			--ptr;
+			++ptr;
 			return *this;
 		}
 
@@ -134,7 +130,7 @@ namespace shitty
 		{
 			ReverseIterator<rit> old(*this);
 
-			--ptr;
+			++ptr;
 			return old;
 		}
 	};
@@ -150,7 +146,7 @@ namespace shitty
 	}
 
 	template <typename IteratorL, typename IteratorR>
-	inline bool operator!=(const ReverseBI<IteratorL>& lhs, const ReverseBI<IteratorR>& rhs) {
+	inline bool operator!=(const ReverseIterator<IteratorL>& lhs, const ReverseIterator<IteratorR>& rhs) {
 		return !(lhs == rhs);
 	}
 

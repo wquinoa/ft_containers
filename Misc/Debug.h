@@ -9,7 +9,8 @@
 # define RED ESC "31m"
 # define GREEN ESC "32m"
 # define RES ESC "0m"
-# define BOLD ESC "0;1m"
-# define PRINT(x) { std::cout << "line " << __LINE__ << ": " << x << std::endl; }
+# define GRAY ESC "37m"
+# define BOLD ESC "1m"
+# define PRINT(x) { std::cout << GRAY "line " << __LINE__ << ": " RES << x << std::endl; }
 
 #endif //FT_CONTAINERS_COLORS_H

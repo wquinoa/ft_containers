@@ -1,10 +1,12 @@
-NAME := ft_containers
+NAME := ft_containers.out
 
 SRC := main.cpp
 
 OBJ := $(SRC:.cpp=.o)
 
-INCL := -I.
+IDIRS := Iterator Misc
+
+INCL := $(foreach d, $(IDIRS), -I $d) -I .
 
 CXX = clang++
 
@@ -29,6 +31,12 @@ fclean: clean
 	rm -rf $(NAME)
 
 re: fclean all
+
+### TESTS ###
+
+list:
+	$(CXX) $(CXXFLAGS) -c list.cpp -o list.o
+	$(CXX) $(CXXFLAGS) list.o -o $@.out
 
 test:
 	$(MAKE) re TEST=1

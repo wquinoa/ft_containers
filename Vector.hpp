@@ -7,7 +7,8 @@
 # include <iostream>
 # include <memory>
 # include <cmath>
-# include "RandomAccessIterator.hpp"
+# include "Iterator/RandomAccessIterator.hpp"
+# include "Iterator/Iterator.hpp"
 # include "Algorithm.hpp"
 
 
@@ -27,6 +28,8 @@ namespace shitty
 		typedef const value_type *										const_pointer;
 		typedef shitty::RandomAccessIterator<T>							iterator;
 		typedef shitty::RandomAccessIterator<T, const T *, const T &> 	const_iterator;
+		typedef shitty::ReverseIterator<iterator>						reverse_iterator;
+		typedef const reverse_iterator 									const_reverse_iterator;
 
 	 private:
 		size_type		_size;
@@ -53,7 +56,7 @@ namespace shitty
 		Vector (Iter first, Iter last,const allocator_type &alloc = allocator_type())
 		: _alloc(alloc)
 		{
-			_capacity = shitty::distance(first, last);
+			_capacity = last - first;
 			_size = _capacity;
 			_beginptr = new value_type[_capacity];
 			assign(first, last);
@@ -89,6 +92,26 @@ namespace shitty
 		const_iterator end() const
 		{
 			return const_iterator(_beginptr + _size);
+		}
+
+		reverse_iterator		rbegin()
+		{
+			return reverse_iterator(_beginptr + (_size - 1));
+		}
+
+		const_reverse_iterator	rbegin() const
+		{
+			return reverse_iterator(_beginptr + (_size - 1));
+		}
+
+		reverse_iterator		rend()
+		{
+			return reverse_iterator(_beginptr - 1);
+		}
+
+		const_reverse_iterator	rend() const
+		{
+			return reverse_iterator(_beginptr - 1);
 		}
 
 		/* Getters */

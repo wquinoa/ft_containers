@@ -10,7 +10,6 @@
 # include <iostream>
 # include <vector>
 # include <iomanip>
-# define PRINT(x) { std:: cout << x << std::endl; }
 
 namespace shitty
 {

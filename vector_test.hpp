@@ -1,15 +1,9 @@
 //
-// Created by Filipp Ewseew on 1/30/21.
+// Created by user on 05.02.2021.
 //
-
-#include "Vector.hpp"
-#include <vector>
-#include <list>
-//#include "BTree.hpp"
-# include "List.hpp"
-# include "Logger.hpp"
-# include "BidirectionalIterator.hpp"
-# include "List.hpp"
+//#include "Logger.hpp"
+//#include "Vector.hpp"
+//#include <vector>
 
 template <typename T, class U>
 void vector_test(T &tr, std::string const &filename)
@@ -28,14 +22,14 @@ void vector_test(T &tr, std::string const &filename)
 	}
 	wait(0);
 
-		/* Reserve basic */
+	/* Reserve basic */
 	tr.reserve(0);
 	PRINT("Capacity after reserve(0) is " << tr.capacity())
 
 	tr.reserve(4);
 	PRINT("Capacity after reserve(4) is " << tr.capacity())
 
-		/* Insertion-removal-access basic */
+	/* Insertion-removal-access basic */
 	for (int i = 0; i < 10; ++i)
 		tr.push_back(U(i + 1, i));
 	printContainer(tr, "10 * push_back()");
@@ -88,8 +82,9 @@ void	vectorBenchmark(std::string const &filename)
 	T v;
 #ifdef TEST_THEIRS
 	Logger log(filename);
-#endif
+#else
 	(void)filename;
+#endif
 
 	/* Insertion */
 
@@ -100,79 +95,4 @@ void	vectorBenchmark(std::string const &filename)
 
 	while (v.size())
 		v.erase(v.begin());
-}
-
-template <class T>
-void listTest(std::string const & filename)
-{
-#ifdef TEST_THEIRS
-	Logger log(filename);
-#endif
-	(void) filename;
-	T l;
-	typename T::iterator it;
-
-	for (int i = 0; i < 10; ++i)
-		l.push_back(i);
-
-	printContainer(l, "list.push_back()");
-	PRINT("current size is: " << l.size());
-
-	while (l.size())
-		l.pop_back();
-	PRINT("current size is: " << l.size());
-	printContainer(l, "list.pop_back() all");
-}
-
-void sigsegvHandler(int sig)
-{
-	if (sig == SIGSEGV) {
-		PRINT(RED << "sigsegv caught" << RES);
-	}
-	exit(1);
-}
-
-int main(int argc, char **argv)
-{
-	signal(SIGSEGV, sigsegvHandler);
-	std::string my_file("my_test_1.txt");
-	std::string their_file("std_test_2.txt");
-	std::string diff("diff " + my_file + ' ' + their_file);
-	std::string leaks = "leaks " + std::string(argv[0] + 2);
-
-	(void)argc;
-
-	unlink(my_file.c_str());
-	unlink(their_file.c_str());
-
-	/*
-	shitty::Vector<TesterClass> mine;
-	std::vector< TesterClass > theirs;
-
-	g_perfdiff = 0;
-	vector_test<typeof(mine), TesterClass>(mine, my_file);
-	vector_test<typeof(theirs), TesterClass>(theirs, their_file);
-
-
-	g_perfdiff = 0;
-	vectorBenchmark<typeof(mine)>(my_file);
-	vectorBenchmark<typeof(theirs)>(their_file);
-	 */
-	shitty::List<int>	my_l;
-	std::list<int>		std_l;
-
-	g_perfdiff = 0;
-	listTest<typeof(my_l)>(my_file);
-	listTest<typeof(std_l)>(their_file);
-
-#ifdef TEST_THEIRS
-	PRINT(RED "diff: " RES)
-	system(diff.c_str());
-#endif
-	std::cout << std::endl;
-	PRINT("Press enter to run [" GREEN << leaks << RES "]")
-	std::cin.ignore();
-	system(leaks.c_str());
-
-	return 0;
 }
