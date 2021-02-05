@@ -6,9 +6,10 @@
 # define FT_CONTAINERS__VECTOR_HPP_
 # include <iostream>
 # include <memory>
+# include <cmath>
 # include "RandomAccessIterator.hpp"
 # include "Algorithm.hpp"
-# define PRINT(x) { std::cout << x << std::endl; }
+
 
 namespace shitty
 {
@@ -114,19 +115,30 @@ namespace shitty
 
 		/* Memory management */
 
+//		void nearestpow(size_type &n)
+//		{
+//			n -= 1;
+//			n = n | (n >> 1);
+//			n = n | (n >> 2);
+//			n = n | (n >> 4);
+//			n = n | (n >> 8);
+//			n = n | (n >> 16);
+//			n += 1;
+//		}
+
 		void reserve(size_type n)
 		{
 			if (n > _capacity)
 			{
-				n = shitty::max(n, _capacity * 2);
+				//nearestpow(n);
 
+				_capacity = n;
 				pointer tmp = new value_type[n];
 				for (size_t i = 0; i < _size; ++i)
 					tmp[i] = _beginptr[i];
 				//::memmove(tmp, _beginptr, _size * sizeof(value_type));
 				delete[] _beginptr;
 				_beginptr = tmp;
-				_capacity = n;
 			}
 			else if (n == 0 && n == _capacity)
 				reserve(1);
@@ -134,10 +146,15 @@ namespace shitty
 
 		void		resize(size_type n, value_type val = value_type())
 		{
-			if (n < _size)
+			if (_size > n)
 				_size = n;
 			else
-				insert(end() - 1, n, val);
+			{
+				reserve(n);
+				insert(end(), n - _size, val);
+//				if (capacity() > n)
+//					_capacity = n;
+			}
 		}
 
 		void clear()
@@ -211,6 +228,7 @@ namespace shitty
 			iterator	it;
 
 			_size -= end() - position;
+			reserve(n);
 			for (; n; --n)
 				push_back(val);
 
@@ -267,12 +285,12 @@ namespace shitty
 
 		reference		operator[](size_type n)
 		{
-			return at(n);
+			return _beginptr[n];
 		}
 
 		const_reference	operator[](size_type n) const
 		{
-			return at(n);
+			return _beginptr[n];
 		}
 
 		reference		front()
@@ -287,12 +305,12 @@ namespace shitty
 
 		reference		back()
 		{
-			return at(_size - 1);
+			return _beginptr[_size - 1];
 		}
 
 		const_reference	back() const
 		{
-			return at(_size - 1);
+			return _beginptr[_size - 1];
 		}
 
 	};

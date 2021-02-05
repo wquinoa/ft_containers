@@ -1,5 +1,5 @@
 *.o
 *.out
-*.txt
-cmake-build-debug
+*[0-9].txt
+cmake-build-debug/*
 .idea
