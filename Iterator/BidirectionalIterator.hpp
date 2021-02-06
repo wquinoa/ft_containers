@@ -7,11 +7,11 @@
 # include "Iterator.hpp"
 # include "DNode.hpp"
 
-template <class T>
-struct DNode;
-
 namespace shitty
 {
+	template <class T>
+	struct DNode;
+
 	template<typename T, typename Pointer = T *, typename Reference = T &>
 	class BidirectionalIterator
 	{
@@ -28,8 +28,12 @@ namespace shitty
 		typedef DNode<T>*								node_pointer;
 		typedef shitty::bidirectional_iterator_tag		iterator_category;
 
+		friend class 									shitty::List<T>;
+
+	 protected:
 		node_pointer ptr;
 
+	 public:
 		BidirectionalIterator() : ptr()
 		{
 		}
@@ -81,7 +85,7 @@ namespace shitty
 			return *this;
 		}
 
-		T	&operator* ()
+		T	&operator* () const
 		{
 			return ptr->data;
 		}
@@ -97,5 +101,5 @@ namespace shitty
 		}
 	};
 }
-
+//# include "List.hpp"
 #endif //FT_CONTAINERS_BIDIRECTIONALITERATOR_HPP

@@ -113,18 +113,35 @@ void listTest(std::string const & filename)
 	T l;
 	typename T::iterator it;
 
-	if (fork() == 0) {
-		PRINT("Empty list front: " << l.front());
-		PRINT("empty list back: " << l.back());
-		exit(1);
-	}
-	wait(0);
+	PRINT("Empty list front: " << l.front());
+	PRINT("empty list back: " << l.back());
+
 
 	for (int i = 0; i < 10; ++i)
 		l.push_back(i);
-	l.assign(20, 5);
-	printContainer(l, "list.push_back()");
+	l.assign(5, 5);
+	//printContainer(l, "list.push_back()");
 	PRINT("current size is: " << l.size());
+	PRINT( "list Max size is " << l.max_size());
+	l.clear();
+	PRINT("Size after list.clear():" << l.size());
+
+
+	if (fork() == 0)
+	{
+		PRINT("Erasing from an empty list:");
+		l.erase(l.begin());
+		exit(1);
+	}
+	wait(0);
+	PRINT("New elem: " << *l.insert(l.begin(), 21))
+
+	while (l.size() < 13)
+		l.push_front(rand() % 22);
+	printContainer(l, "pushing 12 random elements");
+	l.sort();
+	printInReverse(l, "sorting 12 random elements");
+
 
 	//while (l.size())
 	//	l.pop_back();
@@ -150,6 +167,7 @@ int main(int argc, char **argv)
 
 	(void)argc;
 
+	srand(time(0));
 	unlink(my_file.c_str());
 	unlink(their_file.c_str());
 

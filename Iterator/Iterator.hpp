@@ -7,6 +7,10 @@
 
 #include <cstddef>
 
+/*
+ * https://en.wikipedia.org/wiki/Substitution_failure_is_not_an_error
+ */
+
 namespace shitty
 {
 
@@ -67,7 +71,7 @@ namespace shitty
 		typedef typename IteratorTraits<rit>::reference				reference;
 		typedef typename IteratorTraits<rit>::iterator_category		iterator_category;
 
-	 private:
+	 protected:
 		iterator_type ptr;
 
 	 public:
@@ -91,48 +95,72 @@ namespace shitty
 		}
 
 
-		ReverseIterator<rit> &operator=(const ReverseIterator<rit> &other)
+		ReverseIterator<rit> &operator= (const ReverseIterator<rit> &other)
 		{
 			ptr = other.ptr;
 			return *this;
 		}
 
-		ReverseIterator<rit> &operator++()
+		ReverseIterator<rit> &operator++ ()
 		{
 			--ptr;
 			return *this;
 		}
 
-		ReverseIterator<rit> operator++(int)
+		ReverseIterator<rit> operator++ (int)
 		{
 			ReverseIterator<rit> old(*this);
 			--ptr;
 			return old;
 		}
 
-		reference operator*() const
+		reference operator* () const
 		{
 			return *ptr;
 		}
 
-		pointer operator->() const
+		pointer operator-> () const
 		{
-			return &operator*();
+			return &operator* ();
 		}
 
-		ReverseIterator<rit> &operator--()
+		ReverseIterator<rit> &operator-- ()
 		{
 			++ptr;
 			return *this;
 		}
 
-		ReverseIterator<rit> operator--(int)
+		ReverseIterator<rit> operator-- (int)
 		{
 			ReverseIterator<rit> old(*this);
 
 			++ptr;
 			return old;
 		}
+	};
+
+	template <typename T>
+	struct has_iterator_typedefs
+	{
+		typedef char yes[1];
+		typedef char no[2];
+
+		/* Return "no" if typedefs are absent */
+		template <typename>
+		static no& test(...) {};
+
+		/* Return "yes" C has the typedefs */
+		template<typename C>
+		static yes &test(
+				typename C::iterator_category * = nullptr,
+				typename C::difference_type * = nullptr,
+				typename C::value_type * = nullptr,
+				typename C::reference * = nullptr,
+				typename C::pointer * = nullptr
+				) {};
+
+		/* True if test returns "yes" */
+		static const bool value = (sizeof(test<T>()) == sizeof(yes));
 	};
 
 	template<typename It>
@@ -146,7 +174,13 @@ namespace shitty
 	}
 
 	template <typename IteratorL, typename IteratorR>
-	inline bool operator!=(const ReverseIterator<IteratorL>& lhs, const ReverseIterator<IteratorR>& rhs) {
+	inline bool operator== (const ReverseIterator<IteratorL>& lhs, const ReverseIterator<IteratorR>& rhs) {
+		return (lhs.base() == rhs.base());
+	}
+
+
+	template <typename IteratorL, typename IteratorR>
+	inline bool operator!= (const ReverseIterator<IteratorL>& lhs, const ReverseIterator<IteratorR>& rhs) {
 		return !(lhs == rhs);
 	}
 
