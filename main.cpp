@@ -9,7 +9,7 @@
 # include "List.hpp"
 # include "Logger.hpp"
 # include "BidirectionalIterator.hpp"
-# include "List.hpp"
+# include <list>
 
 template <typename T, class U>
 void vector_test(T &tr, std::string const &filename)
@@ -91,6 +91,7 @@ void	vectorBenchmark(std::string const &filename)
 #endif
 	(void)filename;
 
+
 	/* Insertion */
 
 	for (int i = 0; i < 19420; ++i)
@@ -112,16 +113,23 @@ void listTest(std::string const & filename)
 	T l;
 	typename T::iterator it;
 
+	if (fork() == 0) {
+		PRINT("Empty list front: " << l.front());
+		PRINT("empty list back: " << l.back());
+		exit(1);
+	}
+	wait(0);
+
 	for (int i = 0; i < 10; ++i)
 		l.push_back(i);
-
+	l.assign(20, 5);
 	printContainer(l, "list.push_back()");
 	PRINT("current size is: " << l.size());
 
-	while (l.size())
-		l.pop_back();
-	PRINT("current size is: " << l.size());
-	printContainer(l, "list.pop_back() all");
+	//while (l.size())
+	//	l.pop_back();
+	//PRINT("current size is: " << l.size());
+	//printContainer(l, "list.pop_back() all");
 }
 
 void sigsegvHandler(int sig)

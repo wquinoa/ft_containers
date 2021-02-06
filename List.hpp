@@ -31,7 +31,6 @@ namespace shitty
 		typedef shitty::ReverseIterator<const_iterator> const_reverse_iterator;
 
 	 private:
-		node *_head;
 		node *_endptr;
 		size_type _size;
 		allocator_type _alloc;
@@ -40,14 +39,16 @@ namespace shitty
 
 		explicit List(const allocator_type &alloc = Allocator())
 		{
-			_head = new node();
-			_endptr = _head;
+			_endptr = new node();
+			_endptr->next = _endptr;
+			_endptr->prev = _endptr;
 			_size = 0;
 			_alloc = alloc;
 		}
 
 		~List()
 		{
+			clear();
 			delete _endptr;
 		}
 
@@ -55,7 +56,7 @@ namespace shitty
 
 		iterator begin()
 		{
-			return iterator(_head);
+			return iterator(_endptr->next);
 		}
 
 		iterator end()
@@ -65,12 +66,12 @@ namespace shitty
 
 		reference front()
 		{
-			return _head->data;
+			return _endptr->next->data;
 		}
 
 		const_reference front() const
 		{
-			return _head->data;
+			return _endptr->next->data;
 		}
 
 		reference back()
@@ -106,21 +107,25 @@ namespace shitty
 		{
 			iterator it;
 
-			for (it = begin(); it != end(), n > 0; ++it, --n)
-			{
-				it->ptr->data = val;
-			}
+			/* reassign old nodes */
+			for (it = begin(); it != end() and n > 0; ++it, --n)
+				*it = val;
+			/* delete excess nodes */
+			for (; it != end(); ++it)
+				pop_back();
+			/* create new nodes */
 			for (; n > 0; --n)
 				push_back(val);
 		}
 
 		void	push_front(const value_type & val)
 		{
-			_head->prev = new node(val);
-			_head->prev->next = _head;
-			_head = _head->prev;
-			_head->prev = _endptr;
-			_endptr->next = _head;
+			node *tmp = _endptr->next;
+
+			_endptr->next = new node(val);
+			_endptr->next->prev = _endptr;
+			tmp->prev = _endptr->next;
+			_endptr->next->next = tmp;
 			++_size;
 		}
 
@@ -129,17 +134,9 @@ namespace shitty
 			node *to_add = new node(val);
 
 			to_add->next = _endptr;
-			if (_endptr == _head)
-			{
-				_head = to_add;
-				_endptr->prev = to_add;
-			}
-			else
-			{
-				_endptr->prev->next = to_add;
-				to_add->prev = _endptr->prev;
-				_endptr->prev = to_add;
-			}
+			to_add->prev = _endptr->prev;
+			_endptr->prev = to_add;
+			to_add->prev->next = to_add;
 			++_size;
 		}
 
@@ -149,12 +146,9 @@ namespace shitty
 			{
 				node *to_link = _endptr->prev->prev;
 
-				if (to_link)					// size > 0: "forget" last elem
-					to_link->next = _endptr;
-				else							// size is 0: relink head with endptr
-					_head = _endptr;
 				delete _endptr->prev;
 				_endptr->prev = to_link;
+				to_link->next = _endptr;
 				--_size;
 			}
 		}
