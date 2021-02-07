@@ -10,7 +10,7 @@
 # include <unistd.h>
 
 
-namespace shitty
+namespace ft
 {
 	template<typename T, typename Pointer, typename Reference>
 	class BidirectionalIterator;
@@ -28,10 +28,10 @@ namespace shitty
 		typedef typename Allocator::const_reference const_reference;
 		typedef typename Allocator::pointer pointer;
 		typedef typename Allocator::const_pointer const_pointer;
-		typedef shitty::BidirectionalIterator<T, T *, T &> iterator;
-		typedef shitty::BidirectionalIterator<T, const T *, const T &> const_iterator;
-		typedef shitty::ReverseIterator<iterator> reverse_iterator;
-		typedef shitty::ReverseIterator<const_iterator> const_reverse_iterator;
+		typedef ft::BidirectionalIterator<T, T *, T &> iterator;
+		typedef ft::BidirectionalIterator<T, const T *, const T &> const_iterator;
+		typedef ft::ReverseIterator<iterator> reverse_iterator;
+		typedef ft::ReverseIterator<const_iterator> const_reverse_iterator;
 
 	 private:
 		node *_endptr;
@@ -46,27 +46,16 @@ namespace shitty
 		}
 
 
-		void splitInTwo(node* head, node** a, node** b)
+		void splitInTwo(node* head,  node **b, size_type size)
 		{
-			node* fast;
 			node* slow;
 			slow = head;
-			fast = head->next;
 
-			/* Advance 'fast' two nodes, and advance 'slow' one node */
-			while (fast != _endptr)
+			while (size-- > 1)
 			{
-				fast = fast->next;
-				if (fast != _endptr)
-				{
-					slow = slow->next;
-					fast = fast->next;
-				}
+				slow = slow->next;
 			}
 
-			/* 'slow' is before the midpoint in the list, so split it in two
-			at that point. */
-			*a = head;
 			*b = slow->next;
 			slow->next = _endptr;
 		}
@@ -87,34 +76,43 @@ namespace shitty
 			{
 				result = a;
 				result->next = merge(a->next, b, comp);
-				result->next->prev = result;
+				a->next = result->next;
+				result->next->prev = a;
 			}
 			else
 			{
 				result = b;
 				result->next = merge(a, b->next, comp);
-				result->next->prev = result;
+				b->next = result->next;
+				result->next->prev = b;
 			}
 			return (result);
 		}
 
 		template <class Compare>
-		void	merge_sort(node **lst, Compare comp)
+		void	merge_sort(node **lst, size_type size, Compare comp)
 		{
 			/* Promise the older calls to split lists */
-			if (*lst == _endptr or (*lst)->next == _endptr)
-				return ;
+			if (size < 2)
+				return;
 
-			node *a, *b;
+			node *b;
+
+			size_t half_size = size / 2;
+			node* slow = *lst;
 
 			/* Split everything */
-			splitInTwo(*lst, &a, &b);
-			merge_sort(&a, comp);
-			merge_sort(&b, comp);
+			size -= half_size;
+			while (half_size-- > 1)
+				slow = slow->next;
+			b = slow->next;
+			slow->next = _endptr;
+
+			merge_sort(lst, size, comp);
+			merge_sort(&b, size, comp);
 
 			/* Assemble everything */
-			*lst = merge(a, b, comp);
-			(*lst)->prev = _endptr;
+			*lst = merge(*lst, b, comp);
 		}
 
 	 public:
@@ -133,7 +131,7 @@ namespace shitty
 
 		template<class InputIt>
 		List(InputIt first, InputIt last, const allocator_type &alloc = allocator_type(),
-				typename shitty::has_iterator_typedefs<InputIt>::value * = nullptr) : _alloc(alloc)
+				typename ft::has_iterator_category<InputIt>::value * = nullptr) : _alloc(alloc)
 		{
 			createEndNode();
 			assign(first, last);
@@ -214,7 +212,7 @@ namespace shitty
 
 		template< class InputIt >
 		void insert(iterator pos, InputIt first, InputIt last,
-			  typename shitty::has_iterator_typedefs<InputIt>::value = nullptr)
+			  typename ft::has_iterator_category<InputIt>::value = nullptr)
 		{
 			while (first != last)
 			{
@@ -272,7 +270,7 @@ namespace shitty
 
 		template <class InputIt>
 		void assign(InputIt first, InputIt last,
-			  typename shitty::has_iterator_typedefs<InputIt>::value = 0)
+			  typename ft::has_iterator_category<InputIt>::value * = 0)
 		{
 			iterator b;
 			iterator e;
@@ -285,7 +283,6 @@ namespace shitty
 			/* add new nodes */
 			insert(first, last);
 		}
-
 
 		void		assign(size_type n, const value_type& val)
 		{
@@ -365,8 +362,6 @@ namespace shitty
 		void	clear()
 		{
 			erase(begin(), end());
-		//	while (_size)
-		//		pop_front();
 		}
 
 		/*
@@ -429,8 +424,14 @@ namespace shitty
 			/* merge this and other */
 			other._endptr->prev->next = this->_endptr;
 			_endptr->next = merge(begin().get_ptr(), other.begin().get_ptr(), comp);
-			_endptr->next->prev = _endptr;
-			_size += other.size();
+			node *tmp = _endptr->next;
+			tmp->prev = _endptr;
+			while (tmp->next != _endptr)
+			{
+				tmp->next->prev = tmp;
+				tmp = tmp->next;
+			}
+			tmp->next->prev = tmp;
 
 			/* relink other just in case */
 			other._size = 0;
@@ -439,7 +440,7 @@ namespace shitty
 
 		void	merge(List &other)
 		{
-			merge(other, shitty::less<T>());
+			merge(other, ft::less<T>());
 		}
 
 
@@ -455,7 +456,7 @@ namespace shitty
 
 		void	splice(const_iterator pos, List &other, const_iterator first, const_iterator last)
 		{
-			difference_type other_size = shitty::distance(first, last);
+			difference_type other_size = ft::distance(first, last);
 			other._size -= other_size;
 			this->_size += other_size;
 
@@ -478,14 +479,20 @@ namespace shitty
 		template< class Compare >
 		void	sort(Compare comp)
 		{
-			if (_size > 1)
-				merge_sort(&(_endptr->next), comp);
+			merge_sort(&(_endptr->next), _size, comp);
+			node *tmp = _endptr->next;
+			tmp->prev = _endptr;
+			while (tmp->next != _endptr)
+			{
+				tmp->next->prev = tmp;
+				tmp = tmp->next;
+			}
+			tmp->next->prev = tmp;
 		}
 
 		void	sort()
 		{
-			if (_size > 1)
-				merge_sort(&(_endptr->next), shitty::less<value_type>());
+			sort(ft::less<value_type>());
 		}
 	};
 };

@@ -12,7 +12,7 @@
 # include "Algorithm.hpp"
 
 
-namespace shitty
+namespace ft
 {
 	template<class T, class Allocator = std::allocator<T> >
 	class Vector
@@ -26,9 +26,9 @@ namespace shitty
 		typedef ptrdiff_t 												difference_type;
 		typedef value_type *											pointer;
 		typedef const value_type *										const_pointer;
-		typedef shitty::RandomAccessIterator<T>							iterator;
-		typedef shitty::RandomAccessIterator<T, const T *, const T &> 	const_iterator;
-		typedef shitty::ReverseIterator<iterator>						reverse_iterator;
+		typedef ft::RandomAccessIterator<T>							iterator;
+		typedef ft::RandomAccessIterator<T, const T *, const T &> 	const_iterator;
+		typedef ft::ReverseIterator<iterator>						reverse_iterator;
 		typedef const reverse_iterator 									const_reverse_iterator;
 
 	 private:
@@ -53,13 +53,16 @@ namespace shitty
 		};
 
 		template<class Iter>
-		Vector (Iter first, Iter last,const allocator_type &alloc = allocator_type())
+		Vector (Iter first, Iter last, const allocator_type &alloc = allocator_type())
 		: _alloc(alloc)
 		{
-			_capacity = last - first;
-			_size = _capacity;
-			_beginptr = new value_type[_capacity];
-			assign(first, last);
+			_size = _capacity = 0;
+			_beginptr = new value_type[0];
+			while (first != last)
+			{
+				push_back(*first);
+				++first;
+			}
 		}
 
 		Vector(const Vector &copy)
@@ -200,15 +203,19 @@ namespace shitty
 			_size--;
 		}
 
-		template<class Iterator>
-		void assign(Iterator from, Iterator to, typename shitty::has_iterator_typedefs<Iterator>::value = 0)
+		template <class InputIt>
+		void assign(InputIt from, InputIt to,
+			  typename ft::has_iterator_category<InputIt>::value * = false)
 		{
 			clear();
-			for (; from != to; ++from)
+			while (from != to)
+			{
 				push_back(*from);
+				++from;
+			}
 		}
 
-		void assign(size_type n, const value_type &val)
+		void		assign(size_type n, const value_type& val)
 		{
 			clear();
 			insert(begin(), n, val);
@@ -219,7 +226,7 @@ namespace shitty
 /*
 			difference_type to_pos = position - begin();
 			difference_type to_end = _size - to_pos;
-#ifdef SHITTY_DEBUG
+#ifdef ft_DEBUG
 			PRINT("copy " << to_end * sizeof(value_type) << " bytes")
 			PRINT("from index: " << to_pos)
 			PRINT("to index: " << to_pos + n)
@@ -231,7 +238,7 @@ namespace shitty
 
 			// copy old values to new pos
 			::memmove(_beginptr + to_pos + n, _beginptr + to_pos, to_end * sizeof(value_type));
-#ifdef SHITTY_DEBUG
+#ifdef ft_DEBUG
 			PRINT("copied values: ")
 			for (int i = 0; i < _size; ++i)
 				std::cout << _beginptr[i + to_pos + n] << " ";

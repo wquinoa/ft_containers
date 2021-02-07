@@ -11,7 +11,7 @@
  * https://en.wikipedia.org/wiki/Substitution_failure_is_not_an_error
  */
 
-namespace shitty
+namespace ft
 {
 
 	struct input_iterator_tag
@@ -31,7 +31,7 @@ namespace shitty
 	};
 
 	template<typename iterator>
-	struct IteratorTraits
+	struct iterator_traits
 	{
 		typedef typename iterator::difference_type		difference_type;
 		typedef typename iterator::value_type			value_type;
@@ -41,7 +41,7 @@ namespace shitty
 	};
 
 	template<typename T>
-	struct IteratorTraits<T *>
+	struct iterator_traits<T *>
 	{
 		typedef ptrdiff_t					difference_type;
 		typedef T							value_type;
@@ -51,7 +51,7 @@ namespace shitty
 	};
 
 	template<typename T>
-	struct IteratorTraits<const T *>
+	struct iterator_traits<const T *>
 	{
 		typedef ptrdiff_t					difference_type;
 		typedef T							value_type;
@@ -65,11 +65,11 @@ namespace shitty
 	{
 	 public:
 		typedef rit													iterator_type;
-		typedef typename IteratorTraits<rit>::difference_type		difference_type;
-		typedef typename IteratorTraits<rit>::value_type			value_type;
-		typedef typename IteratorTraits<rit>::pointer				pointer;
-		typedef typename IteratorTraits<rit>::reference				reference;
-		typedef typename IteratorTraits<rit>::iterator_category		iterator_category;
+		typedef typename iterator_traits<rit>::difference_type		difference_type;
+		typedef typename iterator_traits<rit>::value_type			value_type;
+		typedef typename iterator_traits<rit>::pointer				pointer;
+		typedef typename iterator_traits<rit>::reference				reference;
+		typedef typename iterator_traits<rit>::iterator_category		iterator_category;
 
 	 protected:
 		iterator_type ptr;
@@ -116,7 +116,7 @@ namespace shitty
 
 		reference operator* () const
 		{
-			return *ptr;
+			return ptr.get_ptr()->data;
 		}
 
 		pointer operator-> () const
@@ -139,28 +139,59 @@ namespace shitty
 		}
 	};
 
-	template <typename T>
+	/*
+	 * http://mit.spbau.ru/sewiki/images/7/72/Lect10.pdf
+	 */
+
+	template < bool ASS, class T = void >
+	struct enable_if {};
+
+	template < class T >
+	struct enable_if <true, T > {
+		typedef T type ;
+	};
+
+//	template <class T, class = void>
+//	struct has_iterator_typedefs
+//	{
+//		static T makeT();
+//
+//		static char test(...);
+//
+//		template <typename U,
+//				typename=typename ft::iterator_traits<U>::difference_type,
+//				typename=typename ft::iterator_traits<U>::pointer,
+//				typename=typename ft::iterator_traits<U>::reference,
+//				typename=typename ft::iterator_traits<U>::value_type,
+//				typename=typename ft::iterator_traits<U>::iterator_category
+//		> static long test(U);
+//
+//		static const bool value = sizeof(test(makeT())) == sizeof(long);
+//	};
+
+	/*template <typename T>
 	struct has_iterator_typedefs
 	{
-		typedef char yes[1];
-		typedef char no[2];
+		static T makeT();
+		typedef void * twoptrs[2];  // sizeof(twoptrs) > sizeof(void *)
+		static twoptrs & test(...); // Common case
+		template<class R> static typename R::iterator_category * test(R); // Iterator
+		template<class R> static void * test(R *); // Pointer
 
-		/* Return "no" if typedefs are absent */
-		template <typename>
-		static no& test(...) {};
+		static const bool value = sizeof(test(makeT())) == sizeof(void *);
+	};*/
 
-		/* Return "yes" C has the typedefs */
-		template<typename C>
-		static yes &test(
-				typename C::iterator_category * = nullptr,
-				typename C::difference_type * = nullptr,
-				typename C::value_type * = nullptr,
-				typename C::reference * = nullptr,
-				typename C::pointer * = nullptr
-				) {};
+	template <typename T>
+	struct has_iterator_category
+	{
+		template<class U>
+		static short	test(...) {};
 
-		/* True if test returns "yes" */
-		static const bool value = (sizeof(test<T>()) == sizeof(yes));
+		template<class U>
+		static char		test(typename U::iterator_category * = 0) {};
+
+	 public:
+		static const bool value = (sizeof(test<T>(0)) == sizeof(char));
 	};
 
 	template <typename IteratorL, typename IteratorR>
@@ -176,8 +207,8 @@ namespace shitty
 
 
 	template< class InputIt >
-	typename IteratorTraits<InputIt>::difference_type
-	distance(InputIt first, InputIt last, shitty::input_iterator_tag)
+	typename iterator_traits<InputIt>::difference_type
+	distance(InputIt first, InputIt last, ft::input_iterator_tag)
 	{
 		typename InputIt::difference_type d;
 

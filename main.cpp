@@ -19,13 +19,14 @@
 #   define TEST_TYPE int
 #  endif
 
-static std::vector<TEST_TYPE> test_random(RANDOM_SIZE);
+static std::vector<TEST_TYPE> test_random;
 
 template <typename T>
+
 void vector_test(std::string const &filename)
 {
 	T tr;
-#ifdef TEST_THEIRS
+#if (TEST_THEIRS == 1)
 	Logger log(filename, "vector base test");
 #endif
 	(void)filename;
@@ -55,7 +56,7 @@ void vector_test(std::string const &filename)
 	}
 	printContainer(tr,  "several push_back()");
 
-	tr.insert(tr.begin() + 5, 10, *(test_random.begin()));
+	tr.insert(tr.begin() + 5, 10, test_random[0]);
 	printContainer(tr, "insert(begin + 5, 10, n)");
 	tr.erase(tr.begin() + 5, tr.begin() + 14);
 	printContainer(tr, "erase(begin + 5, begin + 14)");
@@ -77,7 +78,7 @@ void vector_test(std::string const &filename)
 	printContainer(tr, "Reserve(2000)");
 	tr.clear();
 	PRINT("clear(), capacity: " << tr.capacity() << ", size() == " << tr.size())
-	tr.assign(10, *(test_random.begin()));
+	tr.assign(10, test_random[0]);
 	printContainer(tr, "assign(10, 10)");
 	tr.erase(tr.begin(), tr.begin() + 10);
 	PRINT("erase(begin(), begin() + 10), capacity: " << tr.capacity() << ", size() == " << tr.size())
@@ -101,18 +102,26 @@ template <typename T>
 void	vectorBenchmark(std::string const &filename)
 {
 	T v;
-#ifdef TEST_THEIRS
+#if (TEST_THEIRS == 1)
 	Logger log(filename, "vector benchmark");
 #endif
 	(void)filename;
 
 	/* Insertion */
 
-	for (int i = 0; i < 19420; ++i)
-		v.push_back(TesterClass(i, '*'));
+	for (int i = 0; i < 319420; ++i)
+		v.push_back(i);
 
+	v.assign(35000, 350000);
 	/* Deletion */
 
+	while (v.size())
+		v.pop_back();
+
+	for (int i = 0; i < 31420; ++i)
+		v.push_back(i);
+	v.reserve(20);
+	v.reserve(50000);
 	while (v.size())
 		v.erase(v.begin());
 }
@@ -120,12 +129,11 @@ void	vectorBenchmark(std::string const &filename)
 template <class T>
 void listTest(std::string const & filename)
 {
-#ifdef TEST_THEIRS
+#if (TEST_THEIRS == 1)
 	Logger log(filename, "list base test");
 #endif
 	(void) filename;
 	T l;
-	typename T::iterator it;
 
 	PRINT( "list Max size is " << l.max_size());
 	PRINT("Empty list front: " << l.front());
@@ -141,11 +149,10 @@ void listTest(std::string const & filename)
 	PRINT("Size after list.clear(): " << l.size());
 
 
-
+	std::cerr << RED << "DOUBLE FREE ON STD LIST" << RES << std::endl;
 	if (fork() == 0)
 	{
 		PRINT("Erasing from an empty list, size: " << l.size());
-		PRINT(RED "DOUBLE FREE SOON" RES)
 		l.erase(l.begin());
 
 		exit(0);
@@ -153,19 +160,20 @@ void listTest(std::string const & filename)
 	wait(0);
 	PRINT("New elem: " << *l.insert(l.begin(), 21))
 
-	size_t s = 0;
-	while (l.size() < 13) {
-		l.push_front(22 + (s % 3) * 2 + (((s % 2) * (s % 4) ? 1 : -1)));
-		s = l.size();
+	std::vector<TEST_TYPE>::iterator it = test_random.begin();
+	while (l.size() < RANDOM_SIZE)
+	{
+		l.push_back(*it);
+		++it;
 	}
 	printContainer(l, "pushing 13 random elements");
 	l.sort();
 	printInReverse(l, "sorting 13 random elements");
-	l.reverse();
-	printContainer(l, "list.reverse()");
+	//l.reverse();
+	//printContainer(l, "list.reverse()");
 
 	//while (l.size())
-	//	l.pop_back();
+		//l.pop_back();
 	//PRINT("current size is: " << l.size());
 	//printContainer(l, "list.pop_back() all");
 }
@@ -175,34 +183,34 @@ template <typename T>
 void	listBenchmark(std::string const &filename)
 {
 	T v;
-	T v2;
-#ifdef TEST_THEIRS
-	Logger log(filename, "list benchark test");
+	//T v2;
+#if (TEST_THEIRS == 1)
+	Logger log(filename, "list benchmark");
 #endif
 	(void)filename;
 
 	/* Insertion */
 
-	for (int i = 0; i < 219420; ++i)
+	for (int i = 0; i < 619420; ++i)
 		v.push_back(i);
 
-	v2.assign(500, 21);
-	v2.assign(400, 19);
+	//v2.assign(500, 21);
+	//v2.assign(400, 19);
 
-	typename T::iterator from = v2.begin();
-	for (int i = 0; i < 200; ++i)
-		from++;
-
+//	typename T::iterator from = v2.begin();
+//	for (int i = 0; i < 200; ++i)
+//		from++;
+//
 	v.sort();
 	v.reverse();
-	v.merge(v2);
+	//v.merge(v2);
 	//v.splice(from, v2);
 
 	/* Deletion */
-
+	//v.clear();
 	//while (v.size() > 222)
 		//v.erase(v.begin());
-	v.erase(v.begin(), v.end());
+	//v.erase(v.begin(), v.end());
 
 }
 
@@ -214,10 +222,20 @@ void sigsegvHandler(int sig)
 	exit(1);
 }
 
-# if (STRING_TEST == 1)
+typedef std::vector<TEST_TYPE> std_v;
+typedef ft::Vector<TEST_TYPE> ft_v;
+typedef std::list<TEST_TYPE> std_l;
+typedef ft::List<TEST_TYPE> ft_l;
+std::string my_file("ft_");
+std::string their_file("std_");
+std::string diff("diff " + my_file + "* " + their_file + "* ");
 
-void 	generateRandomStrings()
+
+void	randomValues()
 {
+	srand(time(nullptr));
+
+# if (STRING_TEST == 1)
 	std::string syllables[10] = {"bin", "cla", "za", "for", "lon", "lo", "sta", "try", "gi", "chu"};
 
 	while (test_random.size() < RANDOM_SIZE)
@@ -228,73 +246,61 @@ void 	generateRandomStrings()
 		}
 		test_random.push_back(word);
 	}
-}
 #  else
-void	generateRandomNumbers()
-{
-
-
-	srand(time(0));
-
-	if (std::is_integral<TEST_TYPE>::value || std::is_floating_point<TEST_TYPE>::value) {
-		while (test_random.size() < RANDOM_SIZE)
-			test_random.push_back(rand() % RANDOM_SIZE);
-	}
-}
+	while (test_random.size() < RANDOM_SIZE)
+		test_random.push_back(rand() % RANDOM_SIZE);
 # endif
+}
+
+void	doDiff(const char *type)
+{
+	PRINT(diff);
+	PRINT("\033[0;37m" << " ------- diff ------- \n")
+	system(diff.c_str());
+	PRINT(" ------- end  ------- " << "\033[0m")
+	unlink((my_file + type).c_str());
+	unlink((their_file + type).c_str());
+	g_perfdiff = 0;
+	(void)type;
+}
 
 int main(int argc, char **argv)
 {
 	signal(SIGSEGV, sigsegvHandler);
-	std::string my_file("my_test_1.txt");
-	std::string their_file("std_test_2.txt");
-	std::string diff("diff " + my_file + ' ' + their_file);
 
-# if (STRING_TEST == 1)
-	generateRandomStrings();
-#  else
-	generateRandomNumbers();
-# endif
-	unlink(my_file.c_str());
-	unlink(their_file.c_str());
+	randomValues();
 
+	vector_test<typeof(std_v)>(their_file + "vector");
+	vector_test<typeof(ft_v)>(my_file + "vector");
+	doDiff("vector");
 
-	shitty::Vector<int> mine;
-	std::vector<int> theirs;
-
-	g_perfdiff = 0;
-	vector_test<typeof(mine)>(my_file);
-	vector_test<typeof(theirs)>(their_file);
+	listTest<typeof(std_l)>(their_file + "list");
+	listTest<typeof(ft_l)>(my_file + "list");
+	doDiff("list");
 
 
+#if (TEST_THEIRS == 1)
 
-	shitty::List<TEST_TYPE>	my_l;
-	std::list<TEST_TYPE>	std_l;
-
-	g_perfdiff = 0;
-	listTest<typeof(my_l)>(my_file);
-	listTest<typeof(std_l)>(their_file);
-
-	g_perfdiff = 0;
+	PRINT("Commence vector benchmark")
+	vectorBenchmark<typeof(std_v)>(their_file + "vector");
+	vectorBenchmark<typeof(ft_v)>(my_file + "vector");
+	doDiff("vector");
 
 	PRINT("Commence list benchmark")
-	listBenchmark<typeof(my_l)>(my_file);
-	listBenchmark<typeof(std_l)>(their_file);
-#ifdef TEST_THEIRS
-	PRINT(BLUE "diff: " RES)
-	system(diff.c_str());
-
-	//g_perfdiff = 0;
-	//vectorBenchmark<typeof(mine)>(my_file);
-	//vectorBenchmark<typeof(theirs)>(their_file);
+	listBenchmark<typeof(std_l)>(their_file + "list");
+	listBenchmark<typeof(ft_l)>(my_file + "list");
+	doDiff("list");
 
 	std::string leaks = "leaks " + std::string(argv[0] + 2);
 	std::cout << std::endl;
-	PRINT("Press enter to run [" GREEN << leaks << RES "]")
+
+	PRINT("Press enter to run [" << "\033[0;33m" << leaks << "\033[0m" << "]")
 	std::cin.ignore();
 	system(leaks.c_str());
+
 #endif
 	(void)argc;
 	(void)argv;
+
 	return 0;
 }

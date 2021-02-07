@@ -5,7 +5,7 @@
 #ifndef FT_CONTAINERS_ALGORITHM_HPP
 #define FT_CONTAINERS_ALGORITHM_HPP
 
-namespace shitty
+namespace ft
 {
 
 	template<typename T>

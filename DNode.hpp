@@ -5,7 +5,7 @@
 #ifndef FT_CONTAINERS_DNODE_HPP
 #define FT_CONTAINERS_DNODE_HPP
 
-namespace shitty
+namespace ft
 {
 	template <class T>
 	struct DNode

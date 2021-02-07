@@ -78,15 +78,18 @@ class Logger
 		close(fd);
 		dup2(save_fd, STDOUT_FILENO);
 
-		PRINT(BLUE << filename << ", " << testname << RES " finished in "
-		<< std::fixed << std::setprecision(2) << BOLD << getMsDiff() << "s" RES);
+		PRINT("\033[34m" << filename << ", " << testname << "\033[0m" << " finished in "
+		<< std::fixed << std::setprecision(2) << BOLD << getMsDiff() << "s" << RES);
 
 		ssize_t performance = (end.tv_sec - start.tv_sec) * 1000000 + (end.tv_usec - start.tv_usec);
-		if (g_perfdiff == 0)
+		if (g_perfdiff == 0) {
 			g_perfdiff = performance;
-		else {
-			int diff = (g_perfdiff - performance) / performance * 100;
-			PRINT("original is " BOLD << diff << RES "% faster");
+		}
+		else
+		{
+			int diff = (performance - g_perfdiff) / g_perfdiff * 100;
+			PRINT("STD is " << BOLD << std::abs(diff) << RES << "% "
+			<< (diff > 0 ? "\033[32mfaster" : "\033[31mslower" ) << "\033[0m"" than FT!");
 		}
 	}
 };

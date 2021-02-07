@@ -9,7 +9,7 @@
 # include <memory>
 # include <cstddef>
 
-namespace shitty
+namespace ft
 {
 
 	template < typename T, typename Pointer = T*, typename Reference = T& >
@@ -24,7 +24,7 @@ namespace shitty
 		typedef Reference									reference;
 		typedef size_t										size_type;
 		typedef ptrdiff_t									difference_type;
-		typedef	shitty::random_access_iterator_tag			iterator_category;
+		typedef	ft::random_access_iterator_tag			iterator_category;
 
 	 protected:
 		pointer	ptr;
@@ -119,14 +119,14 @@ namespace shitty
 			return *&ptr;
 		}
 
-		template<typename T2, typename P, typename R, class C>
-		friend inline bool operator!=(const _self& lhs, const RandomAccessIterator<T2, P, R, C>& rhs)
+		template<typename T2, typename P, typename R>
+		friend inline bool operator!=(const _self& lhs, const RandomAccessIterator<T2, P, R>& rhs)
 		{
 			return lhs.ptr != rhs.ptr;
 		}
 
 		template<typename T2, typename P, typename R, class C>
-		friend inline bool operator>(const _self& lhs, const RandomAccessIterator<T2, P, R, C>& rhs)
+		friend inline bool operator>(const _self& lhs, const RandomAccessIterator<T2, P, R>& rhs)
 		{
 			return (rhs.ptr > lhs.ptr);
 		}

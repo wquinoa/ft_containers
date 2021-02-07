@@ -1,4 +1,4 @@
-NAME := ft_containers.out
+NAME := test.out
 
 SRC := main.cpp
 
@@ -13,7 +13,7 @@ CXX = clang++
 CXXFLAGS = -Wall -Werror -Wextra $(INCL)
 
 ifdef TEST
-	CXXFLAGS += -D TEST_THEIRS
+	CXXFLAGS += -D TEST_THEIRS=1
 endif
 
 .PHONY: all clean fclean re test
@@ -22,7 +22,6 @@ all: $(NAME)
 
 $(NAME): $(OBJ)
 	$(CXX) $(CXXFLAGS) $^ -o $@
-	./$(NAME)
 
 clean:
 	rm -rf $(OBJ)
@@ -34,9 +33,8 @@ re: fclean all
 
 ### TESTS ###
 
-list:
-	$(CXX) $(CXXFLAGS) -c list.cpp -o list.o
-	$(CXX) $(CXXFLAGS) list.o -o $@.out
+run:
+	./$(NAME)
 
 test:
-	$(MAKE) re TEST=1
+	$(MAKE) re run TEST=1

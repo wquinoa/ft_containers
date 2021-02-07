@@ -11,7 +11,7 @@
 # include <vector>
 # include <iomanip>
 
-namespace shitty
+namespace ft
 {
 	template <typename T>
 	struct Comparator : public std::binary_function<T, T, bool>
@@ -129,7 +129,7 @@ namespace shitty
     bool operator<(RBTreeNode<T> a, RBTreeNode<T> b)
     { return a.data < b.data; }
 
-    template <class Key, class Tp = Key, class Comp = shitty::Comparator<Key>,
+    template <class Key, class Tp = Key, class Comp = ft::Comparator<Key>,
             class Allocator = std::allocator<Key> >
     class RBTree
     {

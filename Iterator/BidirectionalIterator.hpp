@@ -7,7 +7,7 @@
 # include "Iterator.hpp"
 # include "DNode.hpp"
 
-namespace shitty
+namespace ft
 {
 	template <class T>
 	struct DNode;
@@ -24,10 +24,10 @@ namespace shitty
 		typedef Reference									reference;
 		typedef size_t										size_type;
 		typedef ptrdiff_t									difference_type;
-		typedef	shitty::bidirectional_iterator_tag			iterator_category;
-		typedef DNode<value_type>							node_pointer;
+		typedef	ft::bidirectional_iterator_tag			iterator_category;
+		typedef DNode<value_type> *							node_pointer;
 
-		friend class	shitty::List<T>;
+		friend class	ft::List<T>;
 
 	 protected:
 		node_pointer ptr;
