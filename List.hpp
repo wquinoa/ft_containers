@@ -5,10 +5,9 @@
 #ifndef FT_CONTAINERS_LIST_HPP
 # define FT_CONTAINERS_LIST_HPP
 # include "Iterator.hpp"
-
 # include "DNode.hpp"
 # include <memory>
-
+# include <unistd.h>
 
 
 namespace shitty
@@ -46,6 +45,78 @@ namespace shitty
 			_endptr->prev = _endptr;
 		}
 
+
+		void splitInTwo(node* head, node** a, node** b)
+		{
+			node* fast;
+			node* slow;
+			slow = head;
+			fast = head->next;
+
+			/* Advance 'fast' two nodes, and advance 'slow' one node */
+			while (fast != _endptr)
+			{
+				fast = fast->next;
+				if (fast != _endptr)
+				{
+					slow = slow->next;
+					fast = fast->next;
+				}
+			}
+
+			/* 'slow' is before the midpoint in the list, so split it in two
+			at that point. */
+			*a = head;
+			*b = slow->next;
+			slow->next = _endptr;
+		}
+
+		template <class Compare>
+		node *merge(node *a, node *b, Compare comp)
+		{
+			/* Base cases */
+			if (a == _endptr)
+				return (b);
+			if (b == _endptr)
+				return (a);
+
+			node *result;
+
+			/* Pick either a or b, and recur */
+			if (comp(a->data, b->data))
+			{
+				result = a;
+				result->next = merge(a->next, b, comp);
+				result->next->prev = result;
+			}
+			else
+			{
+				result = b;
+				result->next = merge(a, b->next, comp);
+				result->next->prev = result;
+			}
+			return (result);
+		}
+
+		template <class Compare>
+		void	merge_sort(node **lst, Compare comp)
+		{
+			/* Promise the older calls to split lists */
+			if (*lst == _endptr or (*lst)->next == _endptr)
+				return ;
+
+			node *a, *b;
+
+			/* Split everything */
+			splitInTwo(*lst, &a, &b);
+			merge_sort(&a, comp);
+			merge_sort(&b, comp);
+
+			/* Assemble everything */
+			*lst = merge(a, b, comp);
+			(*lst)->prev = _endptr;
+		}
+
 	 public:
 
 		explicit List(const allocator_type &alloc = Allocator()) : _size(), _alloc(alloc)
@@ -74,7 +145,9 @@ namespace shitty
 			delete _endptr;
 		}
 
-		/* begin end blah blah */
+		/*
+		 * begin end blah blah
+		 */
 
 		iterator begin()
 		{
@@ -116,7 +189,9 @@ namespace shitty
 			return _endptr->prev->data;
 		}
 
-		/* size */
+		/*
+		 * size
+		 */
 
 		bool	empty() const
 		{
@@ -133,14 +208,19 @@ namespace shitty
 			return SIZE_T_MAX / sizeof(node);
 		}
 
-		/* erase assign etc */
+		/*
+		 * erase assign etc
+		 */
 
 		template< class InputIt >
 		void insert(iterator pos, InputIt first, InputIt last,
 			  typename shitty::has_iterator_typedefs<InputIt>::value = nullptr)
 		{
 			while (first != last)
-				insert(pos, *first++);
+			{
+				insert(pos, *first);
+				++first;
+			}
 		}
 
 		iterator 	insert(iterator pos, const value_type &val)
@@ -170,30 +250,35 @@ namespace shitty
 		iterator 	erase(iterator first, iterator last)
 		{
 			while (first != last)
-				erase(first++);
+				first = erase(first);
 			return first;
 		}
 
 		iterator 	erase(iterator pos)
 		{
-			/* link next and prev */
-			pos.ptr->next->prev = pos.ptr->prev;
-			pos.ptr->prev->next = pos.ptr->next;
+			if (_size)
+			{
+				node *ptr = pos.ptr;
+				/* link next and prev */
+				ptr->next->prev = ptr->prev;
+				ptr->prev->next = ptr->next;
 
-			delete pos.ptr;
-			--_size;
-			return ++pos;
+				++pos;
+				delete ptr;
+				--_size;
+			}
+			return pos;
 		}
 
 		template <class InputIt>
 		void assign(InputIt first, InputIt last,
 			  typename shitty::has_iterator_typedefs<InputIt>::value = 0)
 		{
-			iterator b = begin();
-			iterator e = end();
+			iterator b;
+			iterator e;
 
 			/* reassign old nodes */
-			for (; first != last and b != e; ++b, ++first)
+			for (b = begin(), e = end(); first != last and b != e; ++b, ++first)
 				*b = *first;
 			/* delete excess nodes */
 			erase(b, e);
@@ -211,9 +296,8 @@ namespace shitty
 			for (; b != e and n > 0; ++b, --n)
 				*b = val;
 			/* delete excess nodes */
-			for (; b != e; ++b)
-				b = erase(b);
-			/* create new nodes */
+			erase(b, e);
+			/* add new nodes */
 			for (; n > 0; --n)
 				push_back(val);
 		}
@@ -226,7 +310,9 @@ namespace shitty
 				push_back(val);
 		}
 
-		/* push pop */
+		/*
+		 * push pop
+		 */
 
 		void	push_front(const value_type & val)
 		{
@@ -278,115 +364,128 @@ namespace shitty
 
 		void	clear()
 		{
-			while (_size)
-				pop_back();
+			erase(begin(), end());
+		//	while (_size)
+		//		pop_front();
 		}
 
 		/*
 		 *	Operations
 
-		 	merge
-
-			splice
-
-			remove
-
-			remove_if
-
 			reverse
 
 			unique
 
-			sort
-
-			sorts the elements
 		 */
-
-		void splitInTwo(node* head, node** a, node** b)
+		void	remove(const_reference value)
 		{
-			node* fast;
-			node* slow;
-			slow = head;
-			fast = head->next;
+			iterator it, _end;
 
-			/* Advance 'fast' two nodes, and advance 'slow' one node */
-			while (fast != _endptr)
+			it = begin();
+			_end = end();
+			while (it != _end)
 			{
-				fast = fast->next;
-				if (fast != _endptr)
-				{
-					slow = slow->next;
-					fast = fast->next;
-				}
-			}
-
-			/* 'slow' is before the midpoint in the list, so split it in two
-			at that point. */
-			*a = head;
-			*b = slow->next;
-			slow->next = _endptr;
-		}
-
-		node *merge(node *a, node *b)
-		{
-			/* Base cases */
-			if (a == _endptr)
-				return (b);
-			if (b == _endptr)
-				return (a);
-
-			node *result;
-
-			/* Pick either a or b, and recur */
-			if (a->data < b->data)
-			{
-				result = a;
-				result->next = merge(a->next, b);
-				result->next->prev = result;
-			}
-			else
-			{
-				result = b;
-				result->next = merge(a, b->next);
-				result->next->prev = b;
-			}
-			return (result);
-		}
-
-		void merge_sort(node **lst)
-		{
-			if (*lst == _endptr or (*lst)->next == _endptr)
-				return ;
-
-			node *a;
-			node *b;
-
-			splitInTwo(*lst, &a, &b);
-			merge_sort(&a);
-			merge_sort(&b);
-
-			*lst = merge(a, b);
-			(*lst)->prev = _endptr;
-		}
-
-		void	splice(iterator pos, List &other)
-		{
-			if (not other.empty())
-			{
-				node *old_pos = pos.ptr;
-
-				_size += other.size();
-				old_pos->prev->next = other._endptr->next;
-				old_pos->prev = other._endptr->prev;
-
+				if (*it == value)
+					it = erase(it);
+				else
+					++it;
 			}
 		}
 
+		template<class UnaryPredicate>
+		void	remove_if(UnaryPredicate p)
+		{
+			iterator it = begin();
+			iterator _end = end();
+
+			while (it != _end)
+			{
+				if (p(*it))
+					it = erase(it);
+				else
+					++it;
+			}
+		}
+
+		void	reverse()
+		{
+			node *it = _endptr->next;
+			node *r_it = _endptr->prev;
+			value_type tmp;
+
+			while (it != r_it && it->prev != r_it)
+			{
+				tmp = it->data;
+				it->data = r_it->data;
+				r_it->data = tmp;
+				it = it->next;
+				r_it = r_it->prev;
+			}
+		}
+
+		template <class Compare>
+		void	merge(List &other, Compare comp)
+		{
+			/* merge this and other */
+			other._endptr->prev->next = this->_endptr;
+			_endptr->next = merge(begin().get_ptr(), other.begin().get_ptr(), comp);
+			_endptr->next->prev = _endptr;
+			_size += other.size();
+
+			/* relink other just in case */
+			other._size = 0;
+			other._endptr->next = other._endptr->prev = other._endptr;
+		}
+
+		void	merge(List &other)
+		{
+			merge(other, shitty::less<T>());
+		}
+
+
+		void	splice(const_iterator pos, List &other)
+		{
+			splice(pos, other, other.begin(), other.end());
+		}
+
+		void	splice(const_iterator pos, List &other, const_iterator it)
+		{
+			splice(pos, other, it, other.end());
+		}
+
+		void	splice(const_iterator pos, List &other, const_iterator first, const_iterator last)
+		{
+			difference_type other_size = shitty::distance(first, last);
+			other._size -= other_size;
+			this->_size += other_size;
+
+			/* Isolate and relink other list */
+
+			node *other_first = first.ptr;
+			node *other_last = last.ptr->prev;
+
+			other_first->prev->next = last.ptr;
+			last.ptr->prev = other_first->prev;
+
+			/* Insert the new slice into self */
+
+			pos.ptr->prev->next = other_first;
+			other_first->prev = pos.ptr->prev;
+			pos.ptr->prev = other_last;
+			other_last->next = pos.ptr;
+		}
+
+		template< class Compare >
+		void	sort(Compare comp)
+		{
+			if (_size > 1)
+				merge_sort(&(_endptr->next), comp);
+		}
 
 		void	sort()
 		{
 			if (_size > 1)
-				merge_sort(&(_endptr->next));
+				merge_sort(&(_endptr->next), shitty::less<value_type>());
 		}
 	};
 };

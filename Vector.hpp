@@ -201,7 +201,7 @@ namespace shitty
 		}
 
 		template<class Iterator>
-		void assign(Iterator from, Iterator to)
+		void assign(Iterator from, Iterator to, typename shitty::has_iterator_typedefs<Iterator>::value = 0)
 		{
 			clear();
 			for (; from != to; ++from)

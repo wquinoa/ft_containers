@@ -163,16 +163,6 @@ namespace shitty
 		static const bool value = (sizeof(test<T>()) == sizeof(yes));
 	};
 
-	template<typename It>
-	size_t distance(It from, It to)
-	{
-		ptrdiff_t dist;
-
-		for (dist = 0; from != to; ++from)
-			++dist;
-		return dist;
-	}
-
 	template <typename IteratorL, typename IteratorR>
 	inline bool operator== (const ReverseIterator<IteratorL>& lhs, const ReverseIterator<IteratorR>& rhs) {
 		return (lhs.base() == rhs.base());
@@ -182,6 +172,18 @@ namespace shitty
 	template <typename IteratorL, typename IteratorR>
 	inline bool operator!= (const ReverseIterator<IteratorL>& lhs, const ReverseIterator<IteratorR>& rhs) {
 		return !(lhs == rhs);
+	}
+
+
+	template< class InputIt >
+	typename IteratorTraits<InputIt>::difference_type
+	distance(InputIt first, InputIt last, shitty::input_iterator_tag)
+	{
+		typename InputIt::difference_type d;
+
+		for (d = 0; first != last; ++first)
+			++d;
+		return d;
 	}
 
 };

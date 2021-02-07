@@ -5,13 +5,14 @@
 #ifndef FT_CONTAINERS_RANDOMACCESSITERATOR_HPP
 #define FT_CONTAINERS_RANDOMACCESSITERATOR_HPP
 
+# include "Iterator.hpp"
 # include <memory>
 # include <cstddef>
 
 namespace shitty
 {
 
-	template < typename T, typename Pointer = T*, typename Reference = T&, class Category = std::random_access_iterator_tag >
+	template < typename T, typename Pointer = T*, typename Reference = T& >
 	class RandomAccessIterator
 	{
 	 public:
@@ -23,7 +24,7 @@ namespace shitty
 		typedef Reference									reference;
 		typedef size_t										size_type;
 		typedef ptrdiff_t									difference_type;
-		typedef	Category									iterator_category;
+		typedef	shitty::random_access_iterator_tag			iterator_category;
 
 	 protected:
 		pointer	ptr;
@@ -108,7 +109,7 @@ namespace shitty
 			return *this;
 		}
 
-		reference	operator* ()
+		reference	operator* () const
 		{
 			return *ptr;
 		}

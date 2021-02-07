@@ -45,7 +45,7 @@ class Logger
 {
 	int fd, save_fd;
 	timeval start, end;
-	std::string filename;
+	std::string filename, testname;
 
 	Logger() {};
 	Logger(const Logger &copy) { (void)copy; };
@@ -61,7 +61,8 @@ class Logger
 
  public:
 
-	Logger(std::string const & filename) : filename(filename)
+	Logger(std::string const & filename, const std::string &testname)
+	: filename(filename), testname(testname)
 	{
 		save_fd = dup(STDOUT_FILENO);
 		fd = open(filename.c_str(), O_CREAT | O_WRONLY | O_APPEND, 0666);
@@ -77,8 +78,8 @@ class Logger
 		close(fd);
 		dup2(save_fd, STDOUT_FILENO);
 
-		PRINT(filename << ": test finished in " << std::fixed << \
-		std::setprecision(2) << BOLD << getMsDiff() << "s" RES);
+		PRINT(BLUE << filename << ", " << testname << RES " finished in "
+		<< std::fixed << std::setprecision(2) << BOLD << getMsDiff() << "s" RES);
 
 		ssize_t performance = (end.tv_sec - start.tv_sec) * 1000000 + (end.tv_usec - start.tv_usec);
 		if (g_perfdiff == 0)

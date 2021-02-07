@@ -16,19 +16,18 @@ namespace shitty
 	class BidirectionalIterator
 	{
 	 public:
-		typedef T										value_type;
-		typedef Pointer									pointer;
-		typedef Reference								reference;
-		//typedef BidirectionalIterator					biterator;
-		typedef BidirectionalIterator<T, Pointer, Reference>		_self;
-		typedef BidirectionalIterator<T, T *, T &>					iterator;
-		typedef BidirectionalIterator<T, const T *, const T &>		const_iterator;
-		typedef size_t									size_type;
-		typedef ptrdiff_t								difference_type;
-		typedef DNode<T>*								node_pointer;
-		typedef shitty::bidirectional_iterator_tag		iterator_category;
+		typedef BidirectionalIterator<T, Pointer, Reference> _self;
+		typedef BidirectionalIterator<T, T*, T&>			 iterator;
+		typedef BidirectionalIterator<T, const T*, const T&> const_iterator;
+		typedef T											value_type;
+		typedef Pointer										pointer;
+		typedef Reference									reference;
+		typedef size_t										size_type;
+		typedef ptrdiff_t									difference_type;
+		typedef	shitty::bidirectional_iterator_tag			iterator_category;
+		typedef DNode<value_type>							node_pointer;
 
-		friend class 									shitty::List<T>;
+		friend class	shitty::List<T>;
 
 	 protected:
 		node_pointer ptr;
@@ -46,8 +45,13 @@ namespace shitty
 		{
 		}
 
-		BidirectionalIterator(const iterator &x) : ptr(x.ptr)
+		BidirectionalIterator(const iterator &x) : ptr(x.get_ptr())
 		{
+		}
+
+		node_pointer get_ptr() const
+		{
+			return ptr;
 		}
 
 		_self &operator= (const_iterator &copy)
@@ -85,7 +89,7 @@ namespace shitty
 			return *this;
 		}
 
-		T	&operator* () const
+		T	&operator* ()
 		{
 			return ptr->data;
 		}

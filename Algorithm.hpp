@@ -7,17 +7,11 @@
 
 namespace shitty
 {
-	template <class T1, class T2, class Result>
-	struct binary_function {
-		typedef T1 first_argument_type;
-		typedef T2 second_argument_type;
-		typedef Result result_type;
-	};
 
 	template<typename T>
-	struct less// public ft::binary_function<T, T, bool>
+	struct less
 	{
-		bool	operator()(const T& x, const T& y) const
+		bool	operator()(const T &x, const T &y) const
 		{
 			return (x < y);
 		}
@@ -65,7 +59,6 @@ namespace shitty
 	{
 		return (a > b ? a : b);
 	}
-
 
 	template<class ForwardIt, class T>
 	void fill(ForwardIt first, ForwardIt last, const T& value)
