@@ -14,7 +14,6 @@
 
 namespace ft
 {
-
     template <typename T>
     struct RBTreeNode
     {
@@ -66,7 +65,7 @@ namespace ft
     { return a.data < b.data; }
 
     template <class Key, class Tp = Key, class Comp = ft::less<Key>,
-            class Allocator = std::allocator<Key> >
+            class Allocator = std::allocator<Tp>, bool isUnique = true >
     class RBTree
     {
         typedef RBTreeNode<Key>       	node_type;
@@ -74,6 +73,7 @@ namespace ft
         node_type   *root, *_endptr;
         size_t      size;
         Comp		Compare;
+
         
         void    leftRotate(node_type *node)
         {
@@ -111,61 +111,107 @@ namespace ft
 			node->parent = tmp;
 		}
 
+//		void fixDoubleRed(node_type *node)
+//		{
+//        	node_type *uncle;
+//        	node_type *grandparent;
+//
+//			while (not node->parent->isBlack)
+//			{
+//				grandparent = node->parent->parent;
+//				/* root is always black and doesnt have a grandparent */
+//				if (node->parent == grandparent->left)
+//				{
+//					uncle = grandparent->right;
+//					if (uncle->isBlack)
+//					{
+//						node->parent->isBlack = true;
+//						uncle->isBlack = true;
+//						grandparent->isBlack = false;
+//					}
+//					else
+//					{
+//						if (node == node->parent->right)
+//						{
+//							node = node->parent;
+//							leftRotate(node);
+//						}
+//
+//						node->parent->isBlack = true;
+//						node->parent->parent->isBlack = false;
+//						rightRotate(node->parent->parent);
+//					}
+//				}
+//				else
+//				{
+//					uncle = grandparent->left;
+//					if (uncle->isBlack)
+//					{
+//						node->parent->isBlack = true;
+//						uncle->isBlack = true;
+//						grandparent->isBlack = false;
+//					}
+//					else
+//					{
+//						if (node == node->parent->left)
+//						{
+//							node = node->parent;
+//							rightRotate(node);
+//						}
+//
+//						node->parent->isBlack = true;
+//						node->parent->parent->isBlack = false;
+//						leftRotate(node->parent);
+//					}
+//				}
+//			}
+//			root->isBlack = true;
+//		}
+
 		void fixDoubleRed(node_type *node)
 		{
-        	node_type *uncle;
-        	node_type *grandparent;
+        	if (node->parent == _endptr)
+				return ;
 
-			while (not node->parent->isBlack)
+        	node_type *parent = node->parent;
+        	node_type *grandparent = parent->parent;
+        	node_type *uncle = (parent == grandparent->left) ? grandparent->right : grandparent->left;
+
+        	if (parent->isBlack == false)
 			{
-				grandparent = node->parent->parent;
-				/* root is always black and doesnt have a grandparent */
-				if (node->parent == grandparent->left)
+        		if (not uncle->isBlack)
 				{
-					uncle = grandparent->right;
-					if (not uncle->isBlack)
-					{
-						node->parent->isBlack = true;
-						uncle->isBlack = true;
-						grandparent->isBlack = false;
-					}
-					else
-					{
-						if (node == node->parent->right)
-						{
-							node = node->parent;
-							leftRotate(node);
-						}
-
-						node->parent->isBlack = true;
-						node->parent->parent->isBlack = false;
-						rightRotate(node->parent->parent);
-					}
+        			parent->isBlack = true;
+        			uncle->isBlack = true;
+        			grandparent->isBlack = false;
+        			fixDoubleRed(node);
 				}
-				else
+        		else
 				{
-					uncle = grandparent->left;
-					if (not uncle->isBlack)
+        			if (parent == grandparent->left)
 					{
-						node->parent->isBlack = true;
-						uncle->isBlack = true;
-						grandparent->isBlack = false;
-					}
-					else
-					{
-						if (node == node->parent->left)
+        				if (node == parent->left)
+        					swap(parent->isBlack, grandparent->isBlack);
+        				else
 						{
-							node = node->parent;
-							rightRotate(node);
+        					leftRotate(parent);
+        					swap(node->isBlack, grandparent->isBlack);
 						}
-
-						node->parent->isBlack = true;
-						node->parent->parent->isBlack = false;
-						leftRotate(node->parent);
+        				rightRotate(grandparent);
+					}
+        			else
+					{
+        				if (node == parent->right)
+							swap(parent->isBlack, grandparent->isBlack);
+						else
+						{
+							rightRotate(parent);
+							swap(node->isBlack, grandparent->isBlack);
+						}
+						leftRotate(grandparent);
 					}
 				}
 			}
-			root->isBlack = true;
 		}
 
 		node_type *createEmptyNode()
@@ -183,12 +229,9 @@ namespace ft
 	 public:
         RBTree() : size()
         {
-			root = _endptr = new node_type;
+			root = _endptr = createEmptyNode();
 
-			_endptr->parent = _endptr;
 			_endptr->isBlack = true;
-
-			//root = _endptr;
         }
 
         bool    empty()
@@ -212,34 +255,36 @@ namespace ft
 		}
 
 		void inorder(node_type *x) {
-			if (x == NULL)
+			if (x == _endptr)
 				return;
 			inorder(x->left);
 			std::cout << x->data << " ";
 			inorder(x->right);
 		}
 
-		void    add(Key data)
+		typename ft::enable_if<isUnique, void>::type
+		add(Key data)
         {
         	if (size == 0)
 			{
         		root = createEmptyNode();
         		root->isBlack = true;
         		root->data = data;
-        		_endptr->parent = root;
+        		//_endptr->parent = root;
 			}
         	else
         	{
 				node_type *tmp = root;
 				node_type *newparent;
 
-				while (tmp != _endptr) {
+				while (tmp != _endptr)
+				{
 					newparent = tmp;
 					if (Compare(data, tmp->data))
 						tmp = tmp->left;
 					else if (Compare(tmp->data, data))
 						tmp = tmp->right;
-					else return;
+					else return ;
 				}
 
 				node_type *baby = createEmptyNode();
@@ -253,6 +298,7 @@ namespace ft
 
 				if (newparent->parent != _endptr)
 					fixDoubleRed(baby);
+				root->isBlack = true;
 			}
             size++;
 		}

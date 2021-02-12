@@ -16,7 +16,7 @@
 # include "Logger.hpp"
 # include "BidirectionalIterator.hpp"
 
-# define RANDOM_SIZE 33
+# define RANDOM_SIZE 12
 # ifndef STRING_TEST
 #  define STRING_TEST 0
 # endif
