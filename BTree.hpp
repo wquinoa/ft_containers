@@ -8,20 +8,12 @@
 # define FT_CONTAINERS_BTREE_HPP
 # include <memory>
 # include <iostream>
-# include <vector>
+# include "Algorithm.hpp"
+
 # include <iomanip>
 
 namespace ft
 {
-	template <typename T>
-	struct Comparator : public std::binary_function<T, T, bool>
-	{
-		bool operator() (const T &a, const T &b) const
-		{
-			return a < b;
-		}
-	};
-
 
     template <typename T>
     struct RBTreeNode
@@ -45,11 +37,7 @@ namespace ft
 
         RBTreeNode(const node &copy)
         {
-			data = copy.data;
-			isBlack = copy.isBlack;
-			parent = copy.parent;
-			left = copy.left;
-			right = copy.right;
+			operator=();
         }
 
         RBTreeNode(const T &data)
@@ -69,58 +57,6 @@ namespace ft
             return (*this);
         }
 
-        bool isLeft()
-		{
-        	return (parent and parent->isLeft());
-		}
-
-		node *grandparent()
-		{
-        	if (this->parent)
-				return this->parent->parent;
-        	return nullptr;
-		}
-
-        node *getUncle()
-		{
-        	node *grandma;
-
-        	if (parent == nullptr)
-        		return nullptr;
-        	if (parent->parent == nullptr)
-				return nullptr;
-        	grandma = parent->parent;
-        	return parent->isLeft() ? grandma->right : grandma->left;
-		}
-
-		node *getSister()
-		{
-        	if (not parent)
-				return nullptr;
-        	if (this->isLeft())
-				return parent->right;
-			return parent->left;
-		}
-
-		// moves node down and moves given node in its place
-		void moveDown(node *tmp)
-		{
-			if (this->parent)
-			{
-				if (isLeft())
-					parent->left = tmp;
-				else
-					parent->right = tmp;
-			}
-			tmp->parent = parent;
-			parent = tmp;
-		}
-
-		bool hasRedChild()
-		{
-			return (left and not left->isBlack) or (right and not right->isBlack);
-		}
-
 		~RBTreeNode() {}
 
     };
@@ -129,130 +65,130 @@ namespace ft
     bool operator<(RBTreeNode<T> a, RBTreeNode<T> b)
     { return a.data < b.data; }
 
-    template <class Key, class Tp = Key, class Comp = ft::Comparator<Key>,
+    template <class Key, class Tp = Key, class Comp = ft::less<Key>,
             class Allocator = std::allocator<Key> >
     class RBTree
     {
         typedef RBTreeNode<Key>       	node_type;
 
-
-        node_type   *root;
+        node_type   *root, *_endptr;
         size_t      size;
         Comp		Compare;
-
-
-        void	leftrightRotate(node_type *node)
-		{
-        	leftRotate(node->left);
-        	rightRotate(node);
-		}
-
-        void    rightleftRotate(node_type *node)
-        {
-			rightRotate(node->right);
-			leftRotate(node);
-        }
-
+        
         void    leftRotate(node_type *node)
         {
 			node_type *tmp = node->right;
 
-			if (node == root)
-				root = tmp;
-			node->moveDown(tmp);
 			node->right = tmp->left;
-			if (tmp->left)
+			if (tmp->left != _endptr)
 				tmp->left->parent = node;
+			tmp->parent = node->parent;
+			if (node->parent == _endptr)
+				root = tmp;
+			else if (node->parent->left == node)
+				node->parent->left = tmp;
+			else
+				node->parent->right = tmp;
 			tmp->left = node;
+			node->parent = tmp;
 		}
 
         void    rightRotate(node_type *node)
         {
 			node_type *tmp = node->left;
 
-			if (node == root)
-				root = tmp;
-
-			node->moveDown(tmp);
 			node->left = tmp->right;
-			if (tmp->right)
+			if (tmp->right != _endptr)
 				tmp->right->parent = node;
-			tmp->right = node;
-		}
-
-		void swapColors(node_type *x1, node_type *x2) {
-			bool temp;
-			temp = x1->isBlack;
-			x1->isBlack = x2->isBlack;
-			x2->isBlack = temp;
-		}
-
-		void fixDoubleRed(node_type *x)
-		{
-
-			if (x == root) {
-				x->isBlack = true;
-				return;
-			}
-
-			if (x->parent->isBlack)
-				return;
-
-			node_type *parent = x->parent;
-			node_type *uncle = x->getUncle();
-			node_type *grandparent = parent->parent;
-			if (uncle != nullptr and uncle->isBlack == false)
-			{
-				// uncle red, perform recoloring and recurse
-				parent->isBlack = true;
-				uncle->isBlack = true;
-				grandparent->isBlack = false;
-				fixDoubleRed(grandparent);
-			}
+			tmp->parent = node->parent;
+			if (node->parent == _endptr)
+				root = tmp;
+			else if (node->parent->left == node)
+				node->parent->left = tmp;
 			else
+				node->parent->right = tmp;
+			tmp->right = node;
+			node->parent = tmp;
+		}
+
+		void fixDoubleRed(node_type *node)
+		{
+        	node_type *uncle;
+        	node_type *grandparent;
+
+			while (not node->parent->isBlack)
 			{
-				if (parent->isLeft())
+				grandparent = node->parent->parent;
+				/* root is always black and doesnt have a grandparent */
+				if (node->parent == grandparent->left)
 				{
-					if (x->isLeft())
-						swapColors(parent, grandparent);
+					uncle = grandparent->right;
+					if (not uncle->isBlack)
+					{
+						node->parent->isBlack = true;
+						uncle->isBlack = true;
+						grandparent->isBlack = false;
+					}
 					else
 					{
-						leftRotate(parent);
-						swapColors(x, grandparent);
+						if (node == node->parent->right)
+						{
+							node = node->parent;
+							leftRotate(node);
+						}
+
+						node->parent->isBlack = true;
+						node->parent->parent->isBlack = false;
+						rightRotate(node->parent->parent);
 					}
-					rightRotate(grandparent);
 				}
 				else
 				{
-					if (x->isLeft())
+					uncle = grandparent->left;
+					if (not uncle->isBlack)
 					{
-						rightRotate(parent);
-						swapColors(x, grandparent);
+						node->parent->isBlack = true;
+						uncle->isBlack = true;
+						grandparent->isBlack = false;
 					}
 					else
-						swapColors(parent, grandparent);
-					leftRotate(grandparent);
+					{
+						if (node == node->parent->left)
+						{
+							node = node->parent;
+							rightRotate(node);
+						}
+
+						node->parent->isBlack = true;
+						node->parent->parent->isBlack = false;
+						leftRotate(node->parent);
+					}
 				}
 			}
+			root->isBlack = true;
 		}
 
-        /* General utility */
-
-		size_t height(node_type * node)
+		node_type *createEmptyNode()
 		{
-			if (not node)
-				return 0;
+			node_type *rv = new node_type();
 
-			size_t left = height(node->left);
-			size_t right = height(node->right);
+			rv->left = _endptr;
+			rv->right = _endptr;
+			rv->parent = _endptr;
+			rv->isBlack = false;
 
-			return (std::max(left, right) + 1);
-		}
+			return rv;
+		};
 
 	 public:
-        RBTree() : root(), size()
+        RBTree() : size()
         {
-        	Compare = Comp();
+			root = _endptr = new node_type;
+
+			_endptr->parent = _endptr;
+			_endptr->isBlack = true;
+
+			//root = _endptr;
         }
 
         bool    empty()
@@ -264,23 +200,13 @@ namespace ft
 		{
         	node_type *tmp = root;
 
-        	while (tmp)
+        	while (tmp != _endptr)
 			{
         		if (Compare(data, tmp->data))
-        		{
-					if (not tmp->left)
-						return tmp;
-					else
-						tmp = tmp->left;
-				}
+					tmp = tmp->left;
         		else if (Compare(tmp->data, data))
-				{
-        			if (not tmp->right)
-        				return tmp;
-        			else
-        				tmp = tmp->right;
-				}
-        		else break ; // here tmp->data == given data
+       				tmp = tmp->right;
+        		else break;// here tmp->data == given data
 			}
         	return tmp;
 		}
@@ -295,52 +221,57 @@ namespace ft
 
 		void    add(Key data)
         {
-            if (size == 0)
-            {
-                root = new node_type(data);
-                root->isBlack = true;
-            }
-            else
+        	if (size == 0)
 			{
-            	node_type *tmp = find(data);
-            	node_type *to_add;
-            	if (tmp->data == data)
-            		return ;
+        		root = createEmptyNode();
+        		root->isBlack = true;
+        		root->data = data;
+        		_endptr->parent = root;
+			}
+        	else
+        	{
+				node_type *tmp = root;
+				node_type *newparent;
 
-            	to_add = new node_type(data);
-				if (Compare(data, tmp->data))
-					tmp->left = to_add;
-            	else
-            		tmp->right = to_add;
-            	to_add->parent = tmp;
-            	fixDoubleRed(to_add);
+				while (tmp != _endptr) {
+					newparent = tmp;
+					if (Compare(data, tmp->data))
+						tmp = tmp->left;
+					else if (Compare(tmp->data, data))
+						tmp = tmp->right;
+					else return;
+				}
+
+				node_type *baby = createEmptyNode();
+
+				baby->data = data;
+				baby->parent = newparent;
+				if (Compare(baby->data, newparent->data))
+					newparent->left = baby;
+				else
+					newparent->right = baby;
+
+				if (newparent->parent != _endptr)
+					fixDoubleRed(baby);
 			}
             size++;
-        }
+		}
 
         /* General utility */
 
-		void printLevelOrder()
-		{
-			int h = height(root);
-
-			for (int i = 1; i <= h; i++)
-				printGivenLevel(root, i);
-		}
-
 		void postorder(node_type* p, int indent = 0)
 		{
-			if(p != NULL)
+			if(p != _endptr)
 			{
-				if(p->right) {
+				if(p->right != _endptr) {
 					postorder(p->right, indent+4);
 				}
 				if (indent) {
 					std::cout << std::setw(indent) << ' ';
 				}
-				if (p->right) std::cout << " /\n" << std::setw(indent) << ' ';
+				if (p->right != _endptr) std::cout << " /\n" << std::setw(indent) << ' ';
 				std::cout << (p->isBlack ? "\033[30;1m" : "\033[31m") << p->data << "\033[0;m\n ";
-				if(p->left) {
+				if(p->left != _endptr) {
 					std::cout << std::setw(indent) << ' ' <<" \\\n";
 					postorder(p->left, indent+4);
 				}
@@ -356,7 +287,7 @@ namespace ft
 
 		void printInOrder() {
 			std::cout << "Inorder: " << std::endl;
-			if (root == nullptr)
+			if (root == _endptr)
 				std::cout << "Tree is empty" << std::endl;
 			else
 				inorder(root);

@@ -2,32 +2,11 @@
 // Created by Filipp Ewseew on 1/30/21.
 //
 
-#include "Vector.hpp"
-#include <vector>
-#include <list>
-//#include "BTree.hpp"
-# include "List/List.hpp"
-# include "Logger.hpp"
-# include "BidirectionalIterator.hpp"
-# include <list>
-
-# define RANDOM_SIZE 13
-# ifndef STRING_TEST
-#  define STRING_TEST 0
-# endif
-#  if (STRING_TEST == 1)
-#   define TEST_TYPE std::string
-#  else
-#   define TEST_TYPE int
-#  endif
-
-static std::vector<TEST_TYPE> test_random;
-static std::stringstream leak_addr;
+#include "testheader.hpp"
 
 /// VISIBILITY  todo vector test
 
 template <typename T>
-
 void vector_test(std::string const &filename)
 {
 	T tr;
@@ -53,7 +32,7 @@ void vector_test(std::string const &filename)
 	PRINT("Capacity after reserve(4) is " << tr.capacity())
 
 		/* Insertion-removal-access basic */
-	std::vector<TEST_TYPE>::iterator it = test_random.begin();
+	std::vector<TEST_TYPE>::iterator it(test_random.begin());
 	while (tr.size() < RANDOM_SIZE)
 	{
 		tr.push_back(*it);
@@ -105,7 +84,7 @@ void vector_test(std::string const &filename)
 
 /// VISIBILITY todo vector speed
 
-template <typename T>
+template <class T>
 void	vectorBenchmark(std::string const &filename)
 {
 	T v;
@@ -189,7 +168,7 @@ void listTest(std::string const & filename)
 
 /// VISIBILITY todo lists speed
 
-template <typename T>
+template <class T>
 void	listBenchmark(std::string const &filename)
 {
 	T v;
@@ -225,6 +204,19 @@ void	listBenchmark(std::string const &filename)
 
 }
 
+void 	btreeTest()
+{
+	ft::RBTree<int> btree;
+
+	std::vector<TEST_TYPE>::iterator it = test_random.begin();
+
+	for ( ; it != test_random.end(); ++it)
+		btree.add(*it);
+
+	btree.prettyprint();
+}
+
+
 void sigsegvHandler(int sig)
 {
 	if (sig == SIGSEGV) {
@@ -233,62 +225,22 @@ void sigsegvHandler(int sig)
 	exit(1);
 }
 
-typedef std::vector<TEST_TYPE> std_v;
-typedef ft::Vector<TEST_TYPE> ft_v;
-typedef std::list<TEST_TYPE> std_l;
-typedef ft::List<TEST_TYPE> ft_l;
-std::string my_file("ft_");
-std::string their_file("std_");
-std::string diff("diff " + my_file + "* " + their_file + "* ");
-
-
-void	randomValues()
-{
-	srand(time(nullptr));
-
-# if (STRING_TEST == 1)
-	std::string syllables[10] = {"bin", "cla", "za", "for", "lon", "lo", "sta", "try", "gi", "chu"};
-
-	while (test_random.size() < RANDOM_SIZE)
-	{
-		typeof(TEST_TYPE) word;
-		for (int i = 0; i < 3; i++) {  // words of 3 syllables
-			word += syllables[rand() % 10];
-		}
-		test_random.push_back(word);
-	}
-#  else
-	while (test_random.size() < RANDOM_SIZE)
-		test_random.push_back(rand() % RANDOM_SIZE);
-# endif
-}
-
-void	doDiff(const char *type)
-{
-	PRINT(diff);
-	PRINT("\033[0;37m" << " -----------  diff ----------- \n")
-	system(diff.c_str());
-	PRINT(" -----------  end  ----------- " << "\033[0m")
-	unlink((my_file + type).c_str());
-	unlink((their_file + type).c_str());
-	g_perfdiff = 0;
-	(void)type;
-}
-
 int main(int argc, char **argv)
 {
 	signal(SIGSEGV, sigsegvHandler);
 
 	randomValues();
 
+	btreeTest();
+
 #if (TEST_THEIRS == 0)
 //	vector_test<typeof(std_v)>(their_file + "vector");
 //	vector_test<typeof(ft_v)>(my_file + "vector");
 //	doDiff("vector");
 //
-	listTest<typeof(std_l)>(their_file + "list");
-	listTest<typeof(ft_l)>(my_file + "list");
-	doDiff("list");
+//	listTest<typeof(std_l)>(their_file + "list");
+//	listTest<typeof(ft_l)>(my_file + "list");
+//	doDiff("list");
 
 //	std::string leaks = "leaks " + std::string(argv[0] + 2);
 //	std::cout << std::endl;
