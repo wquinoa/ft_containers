@@ -208,10 +208,17 @@ void 	btreeTest()
 {
 	ft::RBTree<int> btree;
 
-	std::vector<TEST_TYPE>::iterator it = test_random.begin();
+//	std::vector<TEST_TYPE>::iterator it = test_random.begin();
+//
+//	for ( ; it != test_random.end(); ++it)
+//		btree.add(*it);
 
-	for ( ; it != test_random.end(); ++it)
-		btree.add(*it);
+	for (int i = 0; i < 12; ++i)
+	{
+		btree.add(i);
+	}
+	btree.delVal(1);
+	btree.delVal(5);
 
 	btree.prettyprint();
 }

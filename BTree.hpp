@@ -32,11 +32,12 @@ namespace ft
 
         RBTreeNode()
         : data(), isBlack(), parent(), left(), right()
-        {}
+        {
+        }
 
         RBTreeNode(const node &copy)
         {
-			operator=();
+			operator=(copy);
         }
 
         RBTreeNode(const T &data)
@@ -56,7 +57,22 @@ namespace ft
             return (*this);
         }
 
-		~RBTreeNode() {}
+		~RBTreeNode()
+		{
+		}
+
+		RBTreeNode *getSibling()
+		{
+        	if (this == parent->left)
+        		return parent->right;
+			else
+				return parent->left;
+		}
+
+		bool 	hasRedChild()
+		{
+			return (right->isBlack or not left->isBlack);
+		}
 
     };
 
@@ -70,10 +86,20 @@ namespace ft
     {
         typedef RBTreeNode<Key>       	node_type;
 
-        node_type   *root, *_endptr;
-        size_t      size;
-        Comp		Compare;
+        node_type  			*root;
+        node_type 			*_endptr;
+        size_t      		size;
+        Comp				Compare;
 
+        node_type *minvalue(node_type *node)
+		{
+        	node_type *tmp = node;
+
+			while (tmp->left != _endptr)
+				tmp = tmp->left;
+
+			return tmp;
+		}
         
         void    leftRotate(node_type *node)
         {
@@ -110,63 +136,6 @@ namespace ft
 			tmp->right = node;
 			node->parent = tmp;
 		}
-
-//		void fixDoubleRed(node_type *node)
-//		{
-//        	node_type *uncle;
-//        	node_type *grandparent;
-//
-//			while (not node->parent->isBlack)
-//			{
-//				grandparent = node->parent->parent;
-//				/* root is always black and doesnt have a grandparent */
-//				if (node->parent == grandparent->left)
-//				{
-//					uncle = grandparent->right;
-//					if (uncle->isBlack)
-//					{
-//						node->parent->isBlack = true;
-//						uncle->isBlack = true;
-//						grandparent->isBlack = false;
-//					}
-//					else
-//					{
-//						if (node == node->parent->right)
-//						{
-//							node = node->parent;
-//							leftRotate(node);
-//						}
-//
-//						node->parent->isBlack = true;
-//						node->parent->parent->isBlack = false;
-//						rightRotate(node->parent->parent);
-//					}
-//				}
-//				else
-//				{
-//					uncle = grandparent->left;
-//					if (uncle->isBlack)
-//					{
-//						node->parent->isBlack = true;
-//						uncle->isBlack = true;
-//						grandparent->isBlack = false;
-//					}
-//					else
-//					{
-//						if (node == node->parent->left)
-//						{
-//							node = node->parent;
-//							rightRotate(node);
-//						}
-//
-//						node->parent->isBlack = true;
-//						node->parent->parent->isBlack = false;
-//						leftRotate(node->parent);
-//					}
-//				}
-//			}
-//			root->isBlack = true;
-//		}
 
 		void fixDoubleRed(node_type *node)
 		{
@@ -214,6 +183,164 @@ namespace ft
 			}
 		}
 
+		void 	fixDoubleBlack(node_type *node)
+		{
+        	_endptr->isBlack = true;
+        	if (node->parent == _endptr)
+				return ;
+
+        	node_type *sibling = node->getSibling();
+        	node_type *parent = node->parent;
+
+        	if (sibling == _endptr)
+			{
+        		fixDoubleBlack(parent);
+			}
+        	else
+        	{
+				if (not sibling->isBlack)
+				{
+					parent->isBlack = false;
+					sibling->isBlack = true;
+					if (sibling == sibling->parent->left)
+					{
+						rightRotate(parent);
+					}
+					else
+					{
+						leftRotate(parent);
+					}
+					fixDoubleBlack(node);
+				}
+				else
+				{
+					if (sibling->hasRedChild())
+					{
+						if (not sibling->left->isBlack)
+						{
+							if (sibling == sibling->parent->left)
+							{
+								sibling->left->isBlack = sibling->isBlack;
+								sibling->isBlack = parent->isBlack;
+								rightRotate(parent);
+							}
+							else
+							{
+								sibling->left->isBlack = parent->isBlack;
+								rightRotate(sibling);
+								leftRotate(parent);
+							}
+						}
+						else
+						{
+							if (sibling == sibling->parent->right)
+							{
+								sibling->right->isBlack = sibling->isBlack;
+								sibling->isBlack = parent->isBlack;
+								leftRotate(parent);
+							}
+							else
+							{
+								sibling->right->isBlack = parent->isBlack;
+								leftRotate(sibling);
+								rightRotate(parent);
+							}
+						}
+						parent->isBlack = true;
+					}
+					else
+					{
+						sibling->isBlack = false;
+						if (parent->isBlack)
+							fixDoubleBlack(parent);
+						else
+							parent->isBlack = true;
+					}
+				}
+			}
+		}
+
+		void 	del(node_type *node)
+		{
+			node_type *parent = node->parent;
+			node_type *u;
+			bool		doubleBlack;
+
+			if (node->left != _endptr and node->right != _endptr)
+				u = minvalue(node->right);
+			else if (node->left == _endptr and node->right == _endptr)
+				u = _endptr;
+			else if (node->left != _endptr)
+				u = node->left;
+			else
+				u = node->right;
+			doubleBlack = (u == _endptr or u->isBlack) and (node->isBlack);
+
+			if (u == _endptr)
+			{
+				if (node->parent == _endptr)
+				{
+					root = _endptr;
+				}
+				else
+				{
+					if (doubleBlack)
+					{
+						fixDoubleBlack(node);
+					}
+					else
+					{
+						if (node->getSibling() != _endptr)
+							node->getSibling()->isBlack = false;
+					}
+					if (node == node->parent->left)
+					{
+						parent->left = _endptr;
+					}
+					else
+					{
+						parent->right = _endptr;
+					}
+				}
+				delete node;
+				return ;
+			}
+
+			if (node->left == _endptr or node->right == _endptr)
+			{
+				if (node->parent == _endptr)
+				{
+					node->data = u->data;
+					node->left = node->right = _endptr;
+					delete u;
+				}
+				else
+				{
+					if (node == node->parent->right)
+						parent->right = u;
+					else
+						parent->left = u;
+					delete node;
+					u->parent = parent;
+
+					if (doubleBlack)
+					{
+						fixDoubleBlack(u);
+					}
+					else
+					{
+						u->isBlack = true;
+					}
+				}
+				return ;
+			}
+
+			// two black children
+			swap(node->data, u->data);
+			del(u);
+			_endptr->isBlack = true;
+		}
+
 		node_type *createEmptyNode()
 		{
 			node_type *rv = new node_type();
@@ -227,11 +354,12 @@ namespace ft
 		};
 
 	 public:
-        RBTree() : size()
-        {
-			root = _endptr = createEmptyNode();
+		RBTree() : size()
+		{
+			_endptr = createEmptyNode();
 
 			_endptr->isBlack = true;
+			root = _endptr;
         }
 
         bool    empty()
@@ -298,12 +426,21 @@ namespace ft
 
 				if (newparent->parent != _endptr)
 					fixDoubleRed(baby);
-				root->isBlack = true;
+				root->isBlack = _endptr->isBlack = true;
 			}
             size++;
 		}
 
-        /* General utility */
+		void	delVal(Key key)
+		{
+			node_type *node = find(key);
+			if (node == _endptr)
+				return ;
+			del(node);
+		}
+
+
+		/* General utility */
 
 		void postorder(node_type* p, int indent = 0)
 		{
