@@ -3,7 +3,8 @@
 //
 
 #ifndef FT_CONTAINERS_ALGORITHM_HPP
-#define FT_CONTAINERS_ALGORITHM_HPP
+# define FT_CONTAINERS_ALGORITHM_HPP
+# include "Iterator.hpp"
 
 namespace ft
 {
@@ -60,36 +61,31 @@ namespace ft
 		return (a > b ? a : b);
 	}
 
-	template<class ForwardIt, class T>
-	void fill(ForwardIt first, ForwardIt last, const T& value)
+	template <typename _InputIt1, typename _InputIt2>
+	bool lexicographical_equal(_InputIt1 begin1, _InputIt1 end1, _InputIt2 begin2, _InputIt2 end2)
 	{
-		for (; first != last; ++first)
-			*first = value;
-	}
-
-	template<class ForwardIt, class T>
-	void copy(ForwardIt first, ForwardIt last, const T& value)
-	{
-		for (; first != last; ++first) {
-			*first = value;
+		for ( ; begin1 != end1; ++begin1, ++begin2)
+		{
+			if (*begin1 != *begin2)
+				return (false);
 		}
+		(void)end2;
+		return (true);
 	}
 
-	template<class InputIt, class OutputIt>
-	OutputIt copy(InputIt first, InputIt last, OutputIt d_first)
+	template <typename _InputIt1, typename _InputIt2>
+	bool lexicographical_less(_InputIt1 begin1, _InputIt1 end1, _InputIt2 begin2, _InputIt2 end2)
 	{
-		while (first != last)
-			*d_first++ = *first++;
-		return d_first;
+		for ( ; begin1 != end1; ++begin1, ++begin2)
+		{
+			if (begin2 == end2 or *begin1 > *begin2)
+				break ;
+			if (*begin1 < *begin2)
+				return (true);
+		}
+		return (false);
 	}
 
-	template<class InputIt>
-	InputIt copy(InputIt first, InputIt last, InputIt d_first)
-	{
-		while (first != last)
-			*d_first++ = *first++;
-		return d_first;
-	}
 }
 
 

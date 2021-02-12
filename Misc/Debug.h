@@ -5,6 +5,7 @@
 #ifndef FT_CONTAINERS_COLORS_H
 # define FT_CONTAINERS_COLORS_H
 # include <iostream>
+# include <sstream>
 
 # ifndef TEST_THEIRS
 #  define TEST_THEIRS 0

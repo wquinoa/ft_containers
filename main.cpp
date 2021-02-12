@@ -6,28 +6,33 @@
 #include <vector>
 #include <list>
 //#include "BTree.hpp"
-# include "List.hpp"
+# include "List/List.hpp"
 # include "Logger.hpp"
 # include "BidirectionalIterator.hpp"
 # include <list>
 
 # define RANDOM_SIZE 13
-# define STRING_TEST 0
-#  if (STRING_TEST == true)
+# ifndef STRING_TEST
+#  define STRING_TEST 0
+# endif
+#  if (STRING_TEST == 1)
 #   define TEST_TYPE std::string
 #  else
 #   define TEST_TYPE int
 #  endif
 
 static std::vector<TEST_TYPE> test_random;
+static std::stringstream leak_addr;
+
+/// VISIBILITY  todo vector test
 
 template <typename T>
 
 void vector_test(std::string const &filename)
 {
 	T tr;
-#if (TEST_THEIRS == 1)
-	Logger log(filename, "vector base test");
+#if (C_LOG == 1)
+	Logger log(filename, "base test");
 #endif
 	(void)filename;
 	PRINT("Current capacity is: " << tr.capacity())
@@ -98,12 +103,14 @@ void vector_test(std::string const &filename)
 	wait(0);
 }
 
+/// VISIBILITY todo vector speed
+
 template <typename T>
 void	vectorBenchmark(std::string const &filename)
 {
 	T v;
-#if (TEST_THEIRS == 1)
-	Logger log(filename, "vector benchmark");
+#if (C_LOG == 1)
+	Logger log(filename, "benchmark");
 #endif
 	(void)filename;
 
@@ -126,11 +133,13 @@ void	vectorBenchmark(std::string const &filename)
 		v.erase(v.begin());
 }
 
+/// VISIBILITY todo list test
+
 template <class T>
 void listTest(std::string const & filename)
 {
-#if (TEST_THEIRS == 1)
-	Logger log(filename, "list base test");
+#if (C_LOG == 1)
+	Logger log(filename, "base test");
 #endif
 	(void) filename;
 	T l;
@@ -178,32 +187,34 @@ void listTest(std::string const & filename)
 	//printContainer(l, "list.pop_back() all");
 }
 
+/// VISIBILITY todo lists speed
 
 template <typename T>
 void	listBenchmark(std::string const &filename)
 {
 	T v;
-	//T v2;
-#if (TEST_THEIRS == 1)
-	Logger log(filename, "list benchmark");
+	T v2;
+#if (C_LOG == 1)
+	Logger log(filename, "benchmark");
 #endif
 	(void)filename;
 
 	/* Insertion */
 
 	for (int i = 0; i < 619420; ++i)
-		v.push_back(i);
+		v.push_back(619420 + (i % 2) ? i : -i);
 
-	//v2.assign(500, 21);
-	//v2.assign(400, 19);
+	v2.assign(500, 21);
+	v2.assign(400, 19);
 
-//	typename T::iterator from = v2.begin();
-//	for (int i = 0; i < 200; ++i)
-//		from++;
-//
+	typename T::iterator from = v2.begin();
+	for (int i = 0; i < 200; ++i)
+		from++;
+
 	v.sort();
-	v.reverse();
-	//v.merge(v2);
+	v.merge(v2);
+	//v.reverse();
+	std::cerr << "possible leak " << "\033[31m" << &(*v2.begin()) << "\033[0m" << std::endl;
 	//v.splice(from, v2);
 
 	/* Deletion */
@@ -255,9 +266,9 @@ void	randomValues()
 void	doDiff(const char *type)
 {
 	PRINT(diff);
-	PRINT("\033[0;37m" << " ------- diff ------- \n")
+	PRINT("\033[0;37m" << " -----------  diff ----------- \n")
 	system(diff.c_str());
-	PRINT(" ------- end  ------- " << "\033[0m")
+	PRINT(" -----------  end  ----------- " << "\033[0m")
 	unlink((my_file + type).c_str());
 	unlink((their_file + type).c_str());
 	g_perfdiff = 0;
@@ -270,33 +281,32 @@ int main(int argc, char **argv)
 
 	randomValues();
 
-	vector_test<typeof(std_v)>(their_file + "vector");
-	vector_test<typeof(ft_v)>(my_file + "vector");
-	doDiff("vector");
-
+#if (TEST_THEIRS == 0)
+//	vector_test<typeof(std_v)>(their_file + "vector");
+//	vector_test<typeof(ft_v)>(my_file + "vector");
+//	doDiff("vector");
+//
 	listTest<typeof(std_l)>(their_file + "list");
 	listTest<typeof(ft_l)>(my_file + "list");
 	doDiff("list");
 
+//	std::string leaks = "leaks " + std::string(argv[0] + 2);
+//	std::cout << std::endl;
+//
+//	PRINT("Press enter to run [" << "\033[0;33m" << leaks << "\033[0m" << "]")
+//	std::cin.ignore();
+//	system(leaks.c_str());
 
-#if (TEST_THEIRS == 1)
+#else
 
-	PRINT("Commence vector benchmark")
+	PRINT("           benchmark          ")
 	vectorBenchmark<typeof(std_v)>(their_file + "vector");
 	vectorBenchmark<typeof(ft_v)>(my_file + "vector");
 	doDiff("vector");
 
-	PRINT("Commence list benchmark")
 	listBenchmark<typeof(std_l)>(their_file + "list");
 	listBenchmark<typeof(ft_l)>(my_file + "list");
 	doDiff("list");
-
-	std::string leaks = "leaks " + std::string(argv[0] + 2);
-	std::cout << std::endl;
-
-	PRINT("Press enter to run [" << "\033[0;33m" << leaks << "\033[0m" << "]")
-	std::cin.ignore();
-	system(leaks.c_str());
 
 #endif
 	(void)argc;

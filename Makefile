@@ -1,19 +1,17 @@
 NAME := test.out
-
 SRC := main.cpp
-
 OBJ := $(SRC:.cpp=.o)
 
-IDIRS := Iterator Misc
-
+IDIRS := Iterator Misc List
 INCL := $(foreach d, $(IDIRS), -I $d) -I .
 
 CXX = clang++
-
 CXXFLAGS = -Wall -Werror -Wextra $(INCL)
-
 ifdef TEST
-	CXXFLAGS += -D TEST_THEIRS=1
+	CXXFLAGS += -D C_LOG=1
+endif
+ifdef BENCH
+	CXXFLAGS += -D TEST_THEIRS=1 -D C_LOG=1
 endif
 
 .PHONY: all clean fclean re test
@@ -38,3 +36,6 @@ run:
 
 test:
 	$(MAKE) re run TEST=1
+
+speed:
+	$(MAKE) re run BENCH=1

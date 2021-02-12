@@ -3,20 +3,20 @@
 //
 
 #ifndef FT_CONTAINERS_LOGGER_HPP
-#define FT_CONTAINERS_LOGGER_HPP
-
-#include <fcntl.h>
-#include <unistd.h>
-#include <sys/time.h>
-#include <iostream>
-#include <ostream>
-#include <iomanip>
-#include "Misc/Debug.h"
-#include "Vector.hpp"
-#include <vector>
+# define FT_CONTAINERS_LOGGER_HPP
+# ifndef C_LOG
+#  define C_LOG 0
+# endif
+# include <fcntl.h>
+# include <unistd.h>
+# include <sys/time.h>
+# include <iostream>
+# include <ostream>
+# include <iomanip>
+# include "Misc/Debug.h"
+# include <vector>
 
 static float g_perfdiff;
-
 
 class TesterClass
 {

@@ -18,18 +18,18 @@ namespace ft
 	class Vector
 	{
 	 public:
-		typedef Allocator 												allocator_type;
-		typedef size_t 													size_type;
-		typedef T 														value_type;
-		typedef value_type &											reference;
-		typedef const value_type &										const_reference;
-		typedef ptrdiff_t 												difference_type;
-		typedef value_type *											pointer;
-		typedef const value_type *										const_pointer;
+		typedef Allocator 											allocator_type;
+		typedef size_t 												size_type;
+		typedef T 													value_type;
+		typedef value_type &										reference;
+		typedef const value_type &									const_reference;
+		typedef ptrdiff_t 											difference_type;
+		typedef value_type *										pointer;
+		typedef const value_type *									const_pointer;
 		typedef ft::RandomAccessIterator<T>							iterator;
 		typedef ft::RandomAccessIterator<T, const T *, const T &> 	const_iterator;
 		typedef ft::ReverseIterator<iterator>						reverse_iterator;
-		typedef const reverse_iterator 									const_reverse_iterator;
+		typedef const reverse_iterator 								const_reverse_iterator;
 
 	 private:
 		size_type		_size;
@@ -41,7 +41,7 @@ namespace ft
 		inline explicit Vector(allocator_type const &a = allocator_type())
 		: _size(), _beginptr(), _capacity(), _alloc(a)
 		{
-		};
+		}
 
 		inline explicit Vector(size_type n, value_type &val = value_type(),
 			const allocator_type &a = allocator_type())
@@ -50,7 +50,7 @@ namespace ft
 			_beginptr = new value_type[n]();
 			for (size_type i = 0; i < n; i++)
 				_beginptr[i] = val;
-		};
+		}
 
 		template<class Iter>
 		Vector (Iter first, Iter last, const allocator_type &alloc = allocator_type())
