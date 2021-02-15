@@ -213,12 +213,14 @@ void 	btreeTest()
 //	for ( ; it != test_random.end(); ++it)
 //		btree.add(*it);
 
-	for (int i = 0; i < 12; ++i)
+	for (int i = 0; i < 22; ++i)
 	{
-		btree.add(i);
+		btree.insert(i);
 	}
-	btree.delVal(1);
-	btree.delVal(5);
+	for (int i = 0; i < 11; ++i)
+	{
+		btree.erase(i);
+	}
 
 	btree.prettyprint();
 }
