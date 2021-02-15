@@ -9,11 +9,44 @@
 # include <memory>
 # include <iostream>
 # include "Algorithm.hpp"
-
+# include <string>
 # include <iomanip>
+# include <map>
 
 namespace ft
 {
+    template<class T, class M>
+    struct pair
+    {
+        T first;
+        M second;
+
+        pair() : first(), second()
+        {
+        }
+
+        pair(T const &f, M const &s) : first(f), second(s)
+        {
+        }
+
+        pair(const pair &copy) : first(copy.first), second(copy.second)
+        {
+        }
+
+        pair &operator=(const pair &copy)
+        {
+            if (this != &copy)
+            {
+                first(copy.first);
+                second(copy.second);
+            }
+            return (*this);
+        }
+
+        bool operator==(const pair &rhs) const { return first == rhs.first and second == rhs.second; }
+
+        bool operator!=(const pair &rhs) const { return !(rhs == *this); }
+    };
 
 	template <class T>
 	struct RBNode
@@ -33,12 +66,13 @@ namespace ft
 		RBNode	*_sibling() { return this->isLeft() ? parent->right : parent->left; }
 	};
 
-	template <class T, class Compare = ft::less<T> >
+	template <class T, class M = T, class Compare = ft::less<T>, bool isUnique = true>
 	class RBTree
 	{
-
 	 public:
-		typedef RBNode<T>	node_type;
+		typedef RBNode<T>   node_type;
+		typedef M           value_type;
+
 
 		RBTree() :_endptr(new RBNode<T>), root(_endptr), comp(Compare())
 		{
@@ -48,24 +82,23 @@ namespace ft
 			_endptr->isRed = false;
 		}
 
-		void insert(T key);
-		RBNode<T> *search(T key);
-		void erase(T key);
-		void prettyprint();
+		void        insert(T key);
+		RBNode<T>   *search(T key);
+		void        erase(T key);
+		void        prettyprint();
 
 	 private:
-		void postorder(node_type* parent, int indent = 0);
-		void leftRotate(RBNode<T> *);
-		void rightRotate(RBNode<T> *);
+		void        postorder(node_type* parent, int indent = 0);
+		void        leftRotate(RBNode<T> *);
+		void        rightRotate(RBNode<T> *);
 
-		void eraseNode(RBNode<T> *);
-		void deletionRebalance(RBNode<T> *);
-		RBNode<T> *leftNodeRebalance(RBNode<T> *);
-		RBNode<T> *rightNodeRebalance(RBNode<T> *);
+		void        eraseNode(RBNode<T> *);
+		void        deletionRebalance(RBNode<T> *);
+		RBNode<T>   *leftNodeRebalance(RBNode<T> *);
+		RBNode<T>   *rightNodeRebalance(RBNode<T> *);
 
-		void fixRedRed(RBNode<T> *);
-
-		RBNode<T>* findSuccessor(RBNode<T> *);
+		void        fixRedRed(RBNode<T> *);
+		RBNode<T>   *findSuccessor(RBNode<T> *);
 
 		RBNode<T>	*_endptr;
 		RBNode<T>	*root;
@@ -75,17 +108,13 @@ namespace ft
 	};
 
 
-	template <class T, class Compare>
-	void RBTree<T, Compare>::postorder(node_type* parent, int indent)
+	template <class T, class M, class Compare, bool isUnique>
+	void RBTree<T, M, Compare, isUnique>::postorder(node_type* parent, int indent)
 	{
 		if (parent != _endptr)
 		{
-			if (parent->right != _endptr) {
-				postorder(parent->right, indent+4);
-			}
-			if (indent) {
-				std::cout << std::setw(indent) << ' ';
-			}
+			if (parent->right != _endptr) postorder(parent->right, indent+4);
+			if (indent) std::cout << std::setw(indent) << ' ';
 			if (parent->right != _endptr) std::cout << " /\n" << std::setw(indent) << ' ';
 			std::cout << (parent->isRed ? "\033[31;1m" : "\033[30m") << parent->data << "\033[0;m\n ";
 			if (parent->left != _endptr) {
@@ -95,14 +124,14 @@ namespace ft
 		}
 	}
 
-	template <class T, class Compare>
-	void RBTree<T, Compare>::prettyprint()
+	template <class T, class M, class Compare, bool isUnique>
+	void RBTree<T, M, Compare, isUnique>::prettyprint()
 	{
 		postorder(root);
 	}
 
-	template <class T, class Compare>
-	void RBTree<T, Compare>::insert(T key)
+	template <class T, class M, class Compare, bool isUnique>
+	void RBTree<T, M, Compare, isUnique>::insert(T key)
 	{
 		RBNode<T>* baby;
 		RBNode<T>* tmp = root;
@@ -138,8 +167,8 @@ namespace ft
 		++size;
 	}
 
-	template <class T, class Compare>
-	RBNode<T> *RBTree<T, Compare>::search(T key)
+	template <class T, class M, class Compare, bool isUnique>
+	RBNode<T> *RBTree<T, M, Compare, isUnique>::search(T key)
 	{
 		RBNode<T> *node = root;
 
@@ -154,8 +183,8 @@ namespace ft
 		return node;
 	}
 
-	template <class T, class Compare>
-	void RBTree<T, Compare>::erase(T key)
+	template <class T, class M, class Compare, bool isUnique>
+	void RBTree<T, M, Compare, isUnique>::erase(T key)
 	{
 		RBNode<T> *node = search(key);
 		if (node != _endptr)
@@ -166,8 +195,8 @@ namespace ft
 		}
 	}
 
-	template <class T, class Compare>
-	RBNode<T> *RBTree<T, Compare>::findSuccessor(RBNode<T> *node)
+	template <class T, class M, class Compare, bool isUnique>
+	RBNode<T> *RBTree<T, M, Compare, isUnique>::findSuccessor(RBNode<T> *node)
 	{
 		RBNode<T> *ret = node->parent;
 
@@ -185,8 +214,8 @@ namespace ft
 		return ret;
 	}
 
-	template <class T, class Compare>
-	void RBTree<T, Compare>::leftRotate(RBNode<T> *node)
+	template <class T, class M, class Compare, bool isUnique>
+	void RBTree<T, M, Compare, isUnique>::leftRotate(RBNode<T> *node)
 	{
 		RBNode<T> *tmp = node->right;
 
@@ -206,8 +235,8 @@ namespace ft
 		node->parent = tmp;
 	}
 
-	template <class T, class Compare>
-	void RBTree<T, Compare>::rightRotate(RBNode<T> *node)
+	template <class T, class M, class Compare, bool isUnique>
+	void RBTree<T, M, Compare, isUnique>::rightRotate(RBNode<T> *node)
 	{
 		RBNode<T> *tmp = node->left;
 
@@ -227,18 +256,18 @@ namespace ft
 		node->parent = tmp;
 	}
 
-	template <class T, class Compare>
-	void RBTree<T, Compare>::fixRedRed(RBNode<T> *node)
+	template <class T, class M, class Compare, bool isUnique>
+	void RBTree<T, M, Compare, isUnique>::fixRedRed(RBNode<T> *node)
 	{
 		RBNode<T> *uncle, *grandparent;
 
-		while (node->parent->isRed  == true)
+		while (node->parent->isRed)
 		{
 			uncle = node->getUncle();
 			grandparent = node->grandparent();
 			if (node->parent->isLeft())
 			{
-				if (uncle->isRed == true)
+				if (uncle->isRed)
 				{
 					node->parent->isRed = false;
 					uncle->isRed = false;
@@ -261,7 +290,7 @@ namespace ft
 			}
 			else
 			{
-				if (uncle->isRed == true)
+				if (uncle->isRed)
 				{
 					node->parent->isRed = false;
 					uncle->isRed = false;
@@ -286,8 +315,8 @@ namespace ft
 		root->isRed = false;
 	}
 
-	template <class T, class Compare>
-	void RBTree<T, Compare>::eraseNode(RBNode<T> *node)
+	template <class T, class M, class Compare, bool isUnique>
+	void RBTree<T, M, Compare, isUnique>::eraseNode(RBNode<T> *node)
 	{
 		RBNode<T> *successor;
 		RBNode<T> *toDelete;
@@ -312,8 +341,8 @@ namespace ft
 		--size;
 	}
 
-	template <class T, class Compare>
-	void RBTree<T, Compare>::deletionRebalance(RBNode<T> * node)
+	template <class T, class M, class Compare, bool isUnique>
+	void RBTree<T, M, Compare, isUnique>::deletionRebalance(RBNode<T> * node)
 	{
 		if (node->isRed)
 			return ;
@@ -327,8 +356,8 @@ namespace ft
 		node->isRed = false;
 	}
 
-	template <class T, class Compare>
-	RBNode<T> *RBTree<T, Compare>::leftNodeRebalance(RBNode<T> *node)
+	template <class T, class M, class Compare, bool isUnique>
+	RBNode<T> *RBTree<T, M, Compare, isUnique>::leftNodeRebalance(RBNode<T> *node)
 	{
 		RBNode<T> *sibling = node->_sibling();
 
@@ -361,8 +390,8 @@ namespace ft
 		}
 	}
 
-	template <class T, class Compare>
-	RBNode<T> *RBTree<T, Compare>::rightNodeRebalance(RBNode<T> *node)
+	template <class T, class M, class Compare, bool isUnique>
+	RBNode<T> *RBTree<T, M, Compare, isUnique>::rightNodeRebalance(RBNode<T> *node)
 	{
 		RBNode<T> *sibling = node->_sibling();
 
