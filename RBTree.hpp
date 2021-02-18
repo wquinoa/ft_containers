@@ -11,10 +11,41 @@
 # include "Algorithm.hpp"
 # include "Iterator/MapIterator.hpp"
 # include <iomanip>
-# include "MapIterator.hpp"
 
 namespace ft
 {
+    template<class T, class M>
+    struct pair
+    {
+        T first;
+        M second;
+
+        pair() : first(), second()
+        {
+        }
+
+        pair(T const &f, M const &s) : first(f), second(s)
+        {
+        }
+
+        pair(const pair &copy) : first(copy.first), second(copy.second)
+        {
+        }
+
+        pair &operator=(const pair &copy)
+        {
+            if (this != &copy)
+            {
+                first(copy.first);
+                second(copy.second);
+            }
+            return (*this);
+        }
+
+        bool operator==(const pair &rhs) const { return first == rhs.first and second == rhs.second; }
+
+        bool operator!=(const pair &rhs) const { return !(rhs == *this); }
+    };
 
 	template <class T>
 	struct RBNode
@@ -320,8 +351,6 @@ namespace ft
 		delete toDelete;
 
 	}
-
-
 
 	template <class T, class Compare>
 	void RBTree<T, Compare>::deletionRebalance(RBNode<T> * node)
