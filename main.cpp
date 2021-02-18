@@ -222,7 +222,9 @@ void 	btreeTest()
 		btree.erase(i);
 	}
 
+
 	btree.prettyprint();
+	btree.clear();
 }
 
 
@@ -253,7 +255,6 @@ int main(int argc, char **argv)
 
 //	std::string leaks = "leaks " + std::string(argv[0] + 2);
 //	std::cout << std::endl;
-//
 //	PRINT("Press enter to run [" << "\033[0;33m" << leaks << "\033[0m" << "]")
 //	std::cin.ignore();
 //	system(leaks.c_str());

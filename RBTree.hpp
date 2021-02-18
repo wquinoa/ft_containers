@@ -9,8 +9,9 @@
 # include <memory>
 # include <iostream>
 # include "Algorithm.hpp"
-
+# include "Iterator/MapIterator.hpp"
 # include <iomanip>
+# include "MapIterator.hpp"
 
 namespace ft
 {
@@ -38,34 +39,41 @@ namespace ft
 	{
 
 	 public:
-		typedef RBNode<T>	node_type;
+		typedef RBNode<T>											N;
+		typedef ft::MapIterator<T, T *, T &, Compare>				iterator;
+		typedef ft::MapIterator<N, const T *, const T &, Compare> 	const_iterator;
+		typedef ft::ReverseIterator<iterator> 						reverse_iterator;
+		typedef ft::ReverseIterator<const_iterator> 				const_reverse_iterator;
 
-		RBTree() :_endptr(new RBNode<T>), root(_endptr), comp(Compare())
+		RBTree() : _endptr(new RBNode<T>), root(_endptr), comp(Compare())
 		{
-			_endptr->left = 0;
-			_endptr->parent = 0;
-			_endptr->right = 0;
+			_endptr->left = _endptr;
+			_endptr->parent = _endptr;
+			_endptr->right = _endptr;
 			_endptr->isRed = false;
 		}
 
-		void insert(T key);
-		RBNode<T> *search(T key);
-		void erase(T key);
-		void prettyprint();
+		void		insert(T const &key);
+		RBNode<T>	*search(T key);
+		void		erase(T key);
+		void		clear();
+		void		prettyprint();
+		iterator	lower_bound(T const &key);
+		iterator	upper_bound(T const &key);
 
 	 private:
-		void postorder(node_type* parent, int indent = 0);
-		void leftRotate(RBNode<T> *);
-		void rightRotate(RBNode<T> *);
+		void		postorder(N* parent, int indent = 0);
+		void		leftRotate(RBNode<T> *);
+		void		rightRotate(RBNode<T> *);
 
-		void eraseNode(RBNode<T> *);
-		void deletionRebalance(RBNode<T> *);
-		RBNode<T> *leftNodeRebalance(RBNode<T> *);
-		RBNode<T> *rightNodeRebalance(RBNode<T> *);
+		void 		clearTree(RBNode<T> *);
+		void		eraseNode(RBNode<T> *);
+		void		deletionRebalance(RBNode<T> *);
+		RBNode<T>	*leftNodeRebalance(RBNode<T> *);
+		RBNode<T>	*rightNodeRebalance(RBNode<T> *);
 
-		void fixRedRed(RBNode<T> *);
-
-		RBNode<T>* findSuccessor(RBNode<T> *);
+		void		fixRedRed(RBNode<T> *);
+		RBNode<T>	*findSuccessor(RBNode<T> *);
 
 		RBNode<T>	*_endptr;
 		RBNode<T>	*root;
@@ -76,7 +84,7 @@ namespace ft
 
 
 	template <class T, class Compare>
-	void RBTree<T, Compare>::postorder(node_type* parent, int indent)
+	void RBTree<T, Compare>::postorder(N *parent, int indent)
 	{
 		if (parent != _endptr)
 		{
@@ -102,11 +110,11 @@ namespace ft
 	}
 
 	template <class T, class Compare>
-	void RBTree<T, Compare>::insert(T key)
+	void RBTree<T, Compare>::insert(T const &key)
 	{
-		RBNode<T>* baby;
-		RBNode<T>* tmp = root;
-		RBNode<T>* nparent = _endptr;
+		RBNode<T> *baby;
+		RBNode<T> *tmp = root;
+		RBNode<T> *nparent = _endptr;
 
 		while (tmp != _endptr)
 		{
@@ -163,6 +171,7 @@ namespace ft
 			if (node == _endptr->parent) // relink end()
 				_endptr->parent = _endptr->grandparent();
 			eraseNode(node);
+			--size;
 		}
 	}
 
@@ -309,8 +318,10 @@ namespace ft
 		node->data = toDelete->data;
 		deletionRebalance(successor);
 		delete toDelete;
-		--size;
+
 	}
+
+
 
 	template <class T, class Compare>
 	void RBTree<T, Compare>::deletionRebalance(RBNode<T> * node)
@@ -395,6 +406,46 @@ namespace ft
 		}
 	}
 
+	template<class T, class Compare>
+	void RBTree<T, Compare>::clear()
+	{
+		clearTree(root);
+		size = 0;
+		root = _endptr;
+		_endptr->parent = _endptr->left = _endptr->right = _endptr;
+	}
+
+	template<class T, class Compare>
+	void RBTree<T, Compare>::clearTree(N *node)
+	{
+		if (node == _endptr)
+			return;
+
+		clearTree(node->left);
+		clearTree(node->right);
+
+		delete node;
+		node = _endptr;
+	}
+
+	template<class T, class Compare>
+	RBTree::iterator RBTree<T, Compare>::lower_bound(const T &key)
+	{
+		RBNode<T> *it = root;
+		while (it != _endptr and comp(it->data, key))
+			it = it->left;
+		return ft::RBTree::iterator(it);
+	}
+
+	template<class T, class Compare>
+	RBTree::iterator RBTree<T, Compare>::upper_bound(const T &key)
+	{
+		RBNode<T> *it = root;
+
+		while (it != _endptr and not comp(it->data, key))
+			it = it->right;
+		return ft::RBTree::iterator(it);
+	}
 };
 
 #endif //FT_CONTAINERS_BTREE_HPP
