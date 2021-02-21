@@ -68,8 +68,8 @@ namespace ft
 		typedef typename iterator_traits<rit>::difference_type		difference_type;
 		typedef typename iterator_traits<rit>::value_type			value_type;
 		typedef typename iterator_traits<rit>::pointer				pointer;
-		typedef typename iterator_traits<rit>::reference				reference;
-		typedef typename iterator_traits<rit>::iterator_category		iterator_category;
+		typedef typename iterator_traits<rit>::reference			reference;
+		typedef typename iterator_traits<rit>::iterator_category	iterator_category;
 
 	 protected:
 		iterator_type ptr;

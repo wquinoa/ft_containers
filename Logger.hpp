@@ -94,28 +94,4 @@ class Logger
 	}
 };
 
-template <typename T>
-void printContainer(T &v, const std::string & operationName)
-{
-	typename T::iterator it;
-
-	PRINT("size is " << v.size());
-	std::cout << "container elements after " << operationName << ": " << std::endl;
-	for (it = v.begin(); it != v.end(); ++it)
-		std::cout << *it << "; ";
-	std::cout << "\n" << std::endl;
-}
-
-template <typename T>
-void printInReverse(T &v, const std::string & operationName)
-{
-	typename T::reverse_iterator it;
-
-	PRINT("size is " << v.size());
-	std::cout << "REVERSE container elements after " << operationName << ": " << std::endl;
-	for (it = v.rbegin(); it != v.rend(); ++it)
-		std::cout << *it << "; ";
-	std::cout << "\n" << std::endl;
-}
-
 #endif //FT_CONTAINERS_LOGGER_HPP

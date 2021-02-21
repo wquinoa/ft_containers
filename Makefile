@@ -2,7 +2,7 @@ NAME := test.out
 SRC := main.cpp
 OBJ := $(SRC:.cpp=.o)
 
-IDIRS := Iterator Misc List
+IDIRS := Iterator Misc List Trees
 INCL := $(foreach d, $(IDIRS), -I $d) -I .
 
 CXX = clang++
@@ -11,7 +11,7 @@ ifdef TEST
 	CXXFLAGS += -D C_LOG=1
 endif
 ifdef BENCH
-	CXXFLAGS += -D TEST_THEIRS=1 -D C_LOG=1
+	CXXFLAGS += -D TEST_THEIRS=1 -D C_LOG=1 -O1
 endif
 
 .PHONY: all clean fclean re test

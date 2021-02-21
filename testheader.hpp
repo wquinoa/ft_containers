@@ -5,11 +5,14 @@
 #ifndef FT_CONTAINERS_TESTHEADER_HPP
 #define FT_CONTAINERS_TESTHEADER_HPP
 
+#include <iostream>
+#include <string>
+#include <sstream>
 #include <map>
 #include <vector>
 #include <list>
 
-#include "RBTree.hpp"
+# include "Trees/Map.hpp"
 # include "List/List.hpp"
 # include "Vector.hpp"
 
@@ -33,6 +36,9 @@ typedef std::vector<TEST_TYPE> std_v;
 typedef ft::Vector<TEST_TYPE> ft_v;
 typedef std::list<TEST_TYPE> std_l;
 typedef ft::List<TEST_TYPE> ft_l;
+typedef std::map<TEST_TYPE, TEST_TYPE> std_mp;
+typedef ft::Map<TEST_TYPE, TEST_TYPE> my_mp;
+
 std::string my_file("ft_");
 std::string their_file("std_");
 std::string diff("diff " + my_file + "* " + their_file + "* ");
@@ -69,5 +75,37 @@ void	doDiff(const char *type)
 	g_perfdiff = 0;
 	(void)type;
 }
+
+template <class T1, class T2>
+std::ostream &operator<< (std::ostream &os, const ft::pair<T1, T2> p)
+{
+	os << '[' << p.first << ',' << p.second << ']';
+	return os;
+}
+
+template <typename T>
+void printContainer(T &v, const std::string & operationName)
+{
+	typename T::iterator it;
+
+	PRINT("size is " << v.size());
+	std::cout << "container elements after " << operationName << ": " << std::endl;
+	for (it = v.begin(); it != v.end(); ++it)
+		std::cout << *it << "; ";
+	std::cout << "\n" << std::endl;
+}
+
+template <typename T>
+void printInReverse(T &v, const std::string & operationName)
+{
+	typename T::reverse_iterator it;
+
+	PRINT("size is " << v.size());
+	std::cout << "REVERSE container elements after " << operationName << ": " << std::endl;
+	for (it = v.rbegin(); it != v.rend(); ++it)
+		std::cout << *it << "; ";
+	std::cout << "\n" << std::endl;
+}
+
 
 #endif //FT_CONTAINERS_TESTHEADER_HPP
