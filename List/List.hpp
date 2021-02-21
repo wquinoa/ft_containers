@@ -6,6 +6,7 @@
 # define FT_CONTAINERS_LIST_HPP
 # include "Iterator.hpp"
 # include "DNode.hpp"
+# include "Algorithm.hpp"
 # include <memory>
 # include <unistd.h>
 
@@ -28,7 +29,7 @@ namespace ft
 		typedef typename Allocator::const_reference					const_reference;
 		typedef typename Allocator::pointer							pointer;
 		typedef typename Allocator::const_pointer					const_pointer;
-		typedef ft::BidirectionalIterator<T, T *, T &>				iterator;
+		typedef ft::BidirectionalIterator<T, T*, T& >				iterator;
 		typedef ft::BidirectionalIterator<T, const T *, const T &> 	const_iterator;
 		typedef ft::ReverseIterator<iterator> 						reverse_iterator;
 		typedef ft::ReverseIterator<const_iterator> 				const_reverse_iterator;

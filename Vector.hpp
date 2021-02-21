@@ -4,7 +4,6 @@
 
 #ifndef FT_CONTAINERS__VECTOR_HPP_
 # define FT_CONTAINERS__VECTOR_HPP_
-# include <iostream>
 # include <memory>
 # include <cmath>
 # include "Iterator/RandomAccessIterator.hpp"

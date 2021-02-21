@@ -192,39 +192,44 @@ void	listBenchmark(std::string const &filename)
 
 	v.sort();
 	v.merge(v2);
-	//v.reverse();
-	std::cerr << "possible leak " << "\033[31m" << &(*v2.begin()) << "\033[0m" << std::endl;
-	//v.splice(from, v2);
+	v.reverse();
+//	std::cerr << "possible leak " << "\033[31m" << &(*v2.begin()) << "\033[0m" << std::endl;
 
 	/* Deletion */
-	//v.clear();
-	//while (v.size() > 222)
-		//v.erase(v.begin());
-	//v.erase(v.begin(), v.end());
+	v.clear();
+	while (v.size() > 222)
+		v.erase(v.begin());
+	v.erase(v.begin(), v.end());
 
 }
 
-void 	btreeTest()
+///   VISIBILITY todo map test
+
+template <class T>
+void 	btreeTest(std::string const & filename)
 {
-	ft::RBTree<int> btree;
+#if (C_LOG == 1)
+	Logger log(filename, "base test");
+#endif
+	T btree;
 
-//	std::vector<TEST_TYPE>::iterator it = test_random.begin();
-//
-//	for ( ; it != test_random.end(); ++it)
-//		btree.add(*it);
+	std::vector<TEST_TYPE>::iterator it = test_random.begin();
 
-	for (int i = 0; i < 22; ++i)
-	{
-		btree.insert(i);
-	}
-	for (int i = 0; i < 11; ++i)
-	{
+	for ( ; it != test_random.end(); ++it)
+		btree.insert(std::make_pair(*it, *it));
+	int i =0;
+
+	for (i = 0; i < 22; ++i)
+		btree.insert(std::make_pair(i, i));
+	printContainer(btree, "inserting 22 consecutive elements");
+	for (i = 0; i < 11; ++i)
 		btree.erase(i);
-	}
+	printInReverse(btree, "erasing 22 consecutive elements");
 
+	PRINT("find(21): " << *btree.find(21))
 
-	btree.prettyprint();
 	btree.clear();
+	(void)filename;
 }
 
 
@@ -241,8 +246,11 @@ int main(int argc, char **argv)
 	signal(SIGSEGV, sigsegvHandler);
 
 	randomValues();
+//
+	btreeTest<typeof(my_mp)>(my_file + "map");
 
-	btreeTest();
+	std::string leaks = "leaks " + std::string(argv[0] + 2);
+	std::cout << std::endl;
 
 #if (TEST_THEIRS == 0)
 //	vector_test<typeof(std_v)>(their_file + "vector");
@@ -252,12 +260,6 @@ int main(int argc, char **argv)
 //	listTest<typeof(std_l)>(their_file + "list");
 //	listTest<typeof(ft_l)>(my_file + "list");
 //	doDiff("list");
-
-//	std::string leaks = "leaks " + std::string(argv[0] + 2);
-//	std::cout << std::endl;
-//	PRINT("Press enter to run [" << "\033[0;33m" << leaks << "\033[0m" << "]")
-//	std::cin.ignore();
-//	system(leaks.c_str());
 
 #else
 
@@ -271,6 +273,8 @@ int main(int argc, char **argv)
 	doDiff("list");
 
 #endif
+//	PRINT("Press enter to run [" << "\033[0;33m" << leaks << "\033[0m" << "]")
+//	system(leaks.c_str());
 	(void)argc;
 	(void)argv;
 

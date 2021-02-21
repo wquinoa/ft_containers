@@ -41,35 +41,15 @@ namespace ft
 			}
 		}
 
-		bool operator== (const DNode &rhs) const
-		{
-			return data == rhs.data;
-		}
+		DNode	*nextn() { return next; }
+		DNode	*prevn() { return prev; }
 
-		bool operator!= (const DNode &rhs) const
-		{
-			return !(rhs == *this);
-		}
-
-		bool operator<(const DNode &rhs) const
-		{
-			return data < rhs.data;
-		}
-
-		bool operator>(const DNode &rhs) const
-		{
-			return rhs < *this;
-		}
-
-		bool operator<=(const DNode &rhs) const
-		{
-			return !(rhs < *this);
-		}
-
-		bool operator>=(const DNode &rhs) const
-		{
-			return !(*this < rhs);
-		}
+		bool operator== (const DNode &rhs) const { return data == rhs.data; }
+		bool operator!= (const DNode &rhs) const { return !(rhs == *this); }
+		bool operator<(const DNode &rhs) const { return data < rhs.data; }
+		bool operator>(const DNode &rhs) const { return rhs < *this; }
+		bool operator<=(const DNode &rhs) const { return !(rhs < *this); }
+		bool operator>=(const DNode &rhs) const { return !(*this < rhs); }
 	};
 }
 

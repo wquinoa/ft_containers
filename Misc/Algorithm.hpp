@@ -8,7 +8,6 @@
 
 namespace ft
 {
-
 	template<typename T>
 	struct less
 	{
