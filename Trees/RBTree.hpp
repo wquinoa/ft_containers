@@ -6,6 +6,7 @@
 # include "treeIterator.hpp"
 # include "Trees/pair.hpp"
 # include "Algorithm.hpp"
+# include "test-related/testheader.hpp"
 
 namespace ft
 {
@@ -41,9 +42,12 @@ namespace ft
 		};
 
 		explicit RBTree(const key_compare &comp = key_compare(), const allocator_type &alloc = allocator_type())
-				: _alloc(alloc), _comp(comp), _size(0) { init(); }
+				: _alloc(alloc), _comp(comp), _size()
+		{
+		    init();
+		}
 
-		RBTree (const RBTree &x) : _alloc(x._alloc), _comp(x._comp), _size(0) { init(); }
+		RBTree (const RBTree &x) : _alloc(x._alloc), _comp(x._comp), _size() { init(); }
 
 		RBTree &operator= (const RBTree &x)
 		{
@@ -64,29 +68,33 @@ namespace ft
 			delete _last;
 		}
 
+# if (TEST_THEIRS == 1)
+        void 	prettyprint() { postorder(_root); }
+# endif
+
 		/*
 		 * Iterators
 		 */
 
-		iterator				begin() { return iterator(_first->parent); }
-		const_iterator			begin() const { return const_iterator(_first->parent); }
-		iterator				end() { return iterator(_last); }
-		const_iterator			end() const { return const_iterator(_last); }
-		reverse_iterator		rbegin() { return reverse_iterator(_last->parent); }
-		const_reverse_iterator	rbegin() const { return const_reverse_iterator(_last->parent); }
-		reverse_iterator		rend() { return reverse_iterator(_first); }
-		const_reverse_iterator	rend() const { return const_reverse_iterator(_first); }
+		inline iterator				    begin()         { return iterator(_first->parent); }
+		inline const_iterator			begin() const   { return const_iterator(_first->parent); }
+		inline iterator			    	end()           { return iterator(_last); }
+		inline const_iterator			end() const     { return const_iterator(_last); }
+		inline reverse_iterator		    rbegin()        { return reverse_iterator(_last->parent); }
+		inline const_reverse_iterator	rbegin() const  { return const_reverse_iterator(_last->parent); }
+		inline reverse_iterator		    rend()          { return reverse_iterator(_first); }
+		inline const_reverse_iterator	rend() const    { return const_reverse_iterator(_first); }
 
 		/*
 		 * Size-related
 		 */
 
-		bool					empty() const { return (_size == 0); }
-		size_type				size() const { return (_size); }
-		size_type				max_size() const { return SIZE_T_MAX / sizeof(RBNode<value_type, Compare>); }
-		virtual size_type		erase(const key_type &k);
-		virtual void			erase(iterator position);
-		virtual void			erase(iterator first, iterator last);
+		inline bool				empty() const       { return (_size == 0); }
+		inline size_type		size() const        { return (_size); }
+		inline size_type		max_size() const    { return SIZE_T_MAX / sizeof(RBNode<value_type, Compare>); }
+		size_type		        erase(const key_type &k);
+		void		        	erase(iterator position);
+		void			        erase(iterator first, iterator last);
 		void					clear();
 		void					swap(RBTree &x);
 
@@ -94,43 +102,66 @@ namespace ft
 		 * Get comparator
 		 */
 
-		key_compare				key_comp() const { return _comp; }
-		value_compare			value_comp() const { return value_compare(_comp); }
+		key_compare				key_comp() const    { return _comp; }
+		value_compare			value_comp() const  { return value_compare(_comp); }
 
 		/*
 		 * Finders
 		 */
 
-		virtual iterator		find(const key_type &k);
-		virtual const_iterator	find(const key_type &k) const;
-		virtual size_type		count(const key_type &k) const;
-		virtual iterator		lower_bound(const key_type &k);
-		virtual const_iterator	lower_bound(const key_type &k) const;
-		virtual iterator		upper_bound(const key_type &k);
-		virtual const_iterator	upper_bound(const key_type &k) const;
+		iterator		find(const key_type &k);
+		const_iterator	find(const key_type &k) const;
+		size_type		count(const key_type &k) const;
+		iterator		lower_bound(const key_type &k);
+		const_iterator	lower_bound(const key_type &k) const;
+		iterator		upper_bound(const key_type &k);
+		const_iterator	upper_bound(const key_type &k) const;
 
-		virtual ft::pair<const_iterator,const_iterator> equal_range(const key_type &k) const
-		{ return ft::pair<const_iterator, const_iterator>(const_iterator(lower_bound(k)), const_iterator(upper_bound(k))); }
+		ft::pair<const_iterator,const_iterator> equal_range(const key_type &k) const
+		{
+		    return ft::pair<const_iterator, const_iterator>(const_iterator(lower_bound(k)), const_iterator(upper_bound(k)));
+		}
 
-		virtual ft::pair<iterator,iterator>             equal_range(const key_type &k)
-		{ return ft::pair<iterator, iterator>(iterator(lower_bound(k)), iterator(upper_bound(k))); }
+		ft::pair<iterator,iterator>             equal_range(const key_type &k)
+		{
+		    return ft::pair<iterator, iterator>(iterator(lower_bound(k)), iterator(upper_bound(k)));
+		}
 
 	 protected:
 
-		/*
+        void postorder(RBNode<value_type, Compare>* p, int indent = 0)
+        {
+            if(notEndNode(p))
+            {
+                if(notEndNode(p->right)) {
+                    postorder(p->right, indent+4);
+                }
+                if (indent) {
+                    std::cout << std::setw(indent) << ' ';
+                }
+                if (notEndNode(p->right)) std::cout << " /\n" << std::setw(indent) << ' ';
+                std::cout << (p->isBlack ? "\033[30;1m" : "\033[31m") << p->data.first << "\033[0;m\n ";
+                if(notEndNode(p->left)) {
+                    std::cout << std::setw(indent) << ' ' <<" \\\n";
+                    postorder(p->left, indent+4);
+                }
+            }
+        }
+
+        /*
 		 * Comparator overloads
 		 */
 
-		bool	cmp(const key_type &k, const ft::pair<Key, Value> &p) const { return key_comp()(k, p.first); }
-		bool	cmp(const ft::pair<Key, Value> &p, const key_type &k) const { return key_comp()(p.first, k); }
-		bool	cmp(const key_type &k1, const key_type &k2) const { return key_comp()(k1, k2); }
-		bool	cmp(const ft::pair<Key, Value> &p1, const ft::pair<Key, Value> &p2) const { return key_comp()(p1.first, p2.first); }
+		bool	cmp(const key_type &k, const ft::pair<Key, Value> &p) const                 { return key_comp()(k, p.first); }
+		bool	cmp(const ft::pair<Key, Value> &p, const key_type &k) const                 { return key_comp()(p.first, k); }
+		bool	cmp(const key_type &k1, const key_type &k2) const                           { return key_comp()(k1, k2); }
+		bool	cmp(const ft::pair<Key, Value> &p1, const ft::pair<Key, Value> &p2) const   { return key_comp()(p1.first, p2.first); }
 
 		/*
 		 *	Special node manipulation
 		 */
 
-		virtual RBNode<NodeContents, Compare>	*findNode(iterator position);
+		RBNode<NodeContents, Compare>	        *findNode(iterator position);
 		void									init();
 		RBNode<NodeContents, Compare>			*relinkRoot(const value_type &val);
 		void									erase_root();
@@ -463,11 +494,11 @@ namespace ft
 		if (node->left) node->left->parent = node;
 		tmp->parent = node->parent;
 
-		if (not tmp->parent) // node was root
+		if (not tmp->parent)
 			_root = tmp;
-		else if (node->isLeft()) // node was left child
+		else if (node->isLeft())
 			tmp->parent->left = tmp;
-		else // node was right child
+		else
 			tmp->parent->right = tmp;
 		tmp->right = node;
 		node->parent = tmp;
@@ -629,14 +660,14 @@ namespace ft
 					leftRotate(node->parent);
 					sibling = node->parent->right;
 				}
-				if (sibling->left->isBlack == true and sibling->right->isBlack)  // case 2
+				if (sibling->left and sibling->left->isBlack and sibling->right and sibling->right->isBlack)  // case 2
 				{
 					sibling->isBlack = false;
 					node = node->parent;
 				}
 				else // Case 3 or 4
 				{
-					if (sibling->right->isBlack) // Case 3
+					if (sibling->right and sibling->right->isBlack) // Case 3
 					{
 						sibling->left->isBlack = true;
 						sibling->isBlack = false;
@@ -647,7 +678,7 @@ namespace ft
 					{
 						sibling->isBlack = node->parent->isBlack;
 						node->parent->isBlack = true;
-						sibling->right->isBlack = true;
+						sibling->right ? sibling->right->isBlack = true : 0;
 						leftRotate(node->parent);
 						node = _root;
 					}
@@ -663,14 +694,14 @@ namespace ft
 					rightRotate(node->parent);
 					sibling = node->parent->left;
 				}
-				if (sibling->right->isBlack and sibling->left->isBlack) // Case 2
+                if (sibling->left and sibling->left->isBlack and sibling->right and sibling->right->isBlack)  // case 2
 				{
 					sibling->isBlack = false;
 					node = node->parent;
 				}
 				else // Case 3 or 4
 				{
-					if (sibling->left->isBlack) // Case 3
+					if (sibling->left and sibling->left->isBlack) // Case 3
 					{
 						sibling->right->isBlack = true;
 						sibling->isBlack = false;
@@ -681,7 +712,7 @@ namespace ft
 					{
 						sibling->isBlack = node->parent->isBlack;
 						node->parent->isBlack = true;
-						sibling->left->isBlack = true;
+                        sibling->left ? sibling->left->isBlack = true : 0;
 						rightRotate(node->parent);
 						node = _root;
 					}
@@ -720,41 +751,41 @@ namespace ft
 
 	/*** VISIBILITY todo Comparison operators ***/
 
+    template <class Key, class Value, class Compare, class Alloc>
+    bool operator== (const RBTree<Key,Value,ft::pair<Key, Value>, Compare, Alloc> &lhs, const RBTree<Key,Value,ft::pair<Key, Value>, Compare, Alloc> &rhs)
+    {
+        return not (lexicographical_equal(lhs.begin(), lhs.end(), rhs.begin(), rhs.end()));
+    }
+
 	template <class Key, class Value, class Compare, class Alloc>
-	bool operator!= (const RBTree<Key,Value,ft::pair<Key, Value>, Compare, Alloc> &lhs, const RBTree<Key,Value,ft::pair<Key, Value>, Compare, Alloc> &rhs) {
+	bool operator!= (const RBTree<Key,Value,ft::pair<Key, Value>, Compare, Alloc> &lhs, const RBTree<Key,Value,ft::pair<Key, Value>, Compare, Alloc> &rhs)
+	{
 		return not (lhs == rhs);
 	}
 
 	template <class Key, class Value, class Compare, class Alloc>
-	bool operator<  (const RBTree<Key,Value,ft::pair<Key, Value>, Compare, Alloc> &lhs, const RBTree<Key,Value,ft::pair<Key, Value>, Compare, Alloc> &rhs) {
+	bool operator<  (const RBTree<Key,Value,ft::pair<Key, Value>, Compare, Alloc> &lhs, const RBTree<Key,Value,ft::pair<Key, Value>, Compare, Alloc> &rhs)
+	{
 		return ft::lexicographical_less(lhs.begin(), lhs.end(), rhs.begin(), rhs.end());
 	}
 
 	template <class Key, class Value, class Compare, class Alloc>
-	bool operator>  (const RBTree<Key,Value,ft::pair<Key, Value>, Compare, Alloc> &lhs, const RBTree<Key,Value,ft::pair<Key, Value>, Compare, Alloc> &rhs) {
+	bool operator>  (const RBTree<Key,Value,ft::pair<Key, Value>, Compare, Alloc> &lhs, const RBTree<Key,Value,ft::pair<Key, Value>, Compare, Alloc> &rhs)
+	{
 		return (rhs < lhs);
 	}
 
 	template <class Key, class Value, class Compare, class Alloc>
-	bool operator<= (const RBTree<Key,Value,ft::pair<Key, Value>, Compare, Alloc> &lhs, const RBTree<Key,Value,ft::pair<Key, Value>, Compare, Alloc> &rhs) {
+	bool operator<= (const RBTree<Key,Value,ft::pair<Key, Value>, Compare, Alloc> &lhs, const RBTree<Key,Value,ft::pair<Key, Value>, Compare, Alloc> &rhs)
+	{
 		return not (lhs > rhs);
 	}
 
 	template <class Key, class Value, class Compare, class Alloc>
-	bool operator>= (const RBTree<Key,Value,ft::pair<Key, Value>, Compare, Alloc> &lhs, const RBTree<Key,Value,ft::pair<Key, Value>, Compare, Alloc> &rhs) {
+	bool operator>= (const RBTree<Key,Value,ft::pair<Key, Value>, Compare, Alloc> &lhs, const RBTree<Key,Value,ft::pair<Key, Value>, Compare, Alloc> &rhs)
+	{
 		return not (lhs < rhs);
 	}
-
-	template <class Key, class Value, class Compare, class Alloc>
-	void swap (RBTree<Key,Value,ft::pair<Key, Value>, Compare, Alloc> &x, RBTree<Key,Value,ft::pair<Key, Value>, Compare, Alloc> &y)
-	{
-		ft::swap(x._size, y._size);
-		ft::swap(x._first, y._first);
-		ft::swap(x._root, y._root);
-		ft::swap(x._last, y._last);
-		ft::swap(x._alloc, y._alloc);
-	}
-
 
 } // ft namespace
 

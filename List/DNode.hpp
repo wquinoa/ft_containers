@@ -44,12 +44,12 @@ namespace ft
 		DNode	*nextn() { return next; }
 		DNode	*prevn() { return prev; }
 
-		bool operator== (const DNode &rhs) const { return data == rhs.data; }
-		bool operator!= (const DNode &rhs) const { return !(rhs == *this); }
-		bool operator<(const DNode &rhs) const { return data < rhs.data; }
-		bool operator>(const DNode &rhs) const { return rhs < *this; }
-		bool operator<=(const DNode &rhs) const { return !(rhs < *this); }
-		bool operator>=(const DNode &rhs) const { return !(*this < rhs); }
+		inline bool operator== (const DNode &rhs) const { return data == rhs.data; }
+		inline bool operator!= (const DNode &rhs) const { return !(rhs == *this); }
+		inline bool operator<(const DNode &rhs) const { return data < rhs.data; }
+		inline bool operator>(const DNode &rhs) const { return rhs < *this; }
+		inline bool operator<=(const DNode &rhs) const { return !(rhs < *this); }
+		inline bool operator>=(const DNode &rhs) const { return !(*this < rhs); }
 	};
 }
 

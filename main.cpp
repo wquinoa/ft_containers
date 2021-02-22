@@ -2,7 +2,7 @@
 // Created by Filipp Ewseew on 1/30/21.
 //
 
-#include "testheader.hpp"
+#include "test-related/testheader.hpp"
 
 /// VISIBILITY  todo vector test
 
@@ -16,13 +16,13 @@ void vector_test(std::string const &filename)
 	(void)filename;
 	PRINT("Current capacity is: " << tr.capacity())
 
-	if (fork() == 0)
-	{
-		PRINT("empty vector.front() " << tr.front())
-		PRINT("empty vector.back(): " << tr.back())
-		exit(1);
-	}
-	wait(0);
+//	if (fork() == 0)
+//	{
+//		PRINT("empty vector.front() " << tr.front())
+//		PRINT("empty vector.back(): " << tr.back())
+//		exit(1);
+//	}
+//	wait(0);
 
 		/* Reserve basic */
 	tr.reserve(0);
@@ -32,15 +32,12 @@ void vector_test(std::string const &filename)
 	PRINT("Capacity after reserve(4) is " << tr.capacity())
 
 		/* Insertion-removal-access basic */
-	std::vector<TEST_TYPE>::iterator it(test_random.begin());
-	while (tr.size() < RANDOM_SIZE)
-	{
-		tr.push_back(*it);
-		++it;
-	}
+	for  (int i = 0; i < 12; ++i)
+		tr.push_back(i);
+
 	printContainer(tr,  "several push_back()");
 
-	tr.insert(tr.begin() + 5, 10, test_random[0]);
+	tr.insert(tr.begin() + 5, 10, 8);
 	printContainer(tr, "insert(begin + 5, 10, n)");
 	tr.erase(tr.begin() + 5, tr.begin() + 14);
 	printContainer(tr, "erase(begin + 5, begin + 14)");
@@ -62,24 +59,30 @@ void vector_test(std::string const &filename)
 	printContainer(tr, "Reserve(2000)");
 	tr.clear();
 	PRINT("clear(), capacity: " << tr.capacity() << ", size() == " << tr.size())
-	tr.assign(10, test_random[0]);
+	tr.assign(10, 9);
 	printContainer(tr, "assign(10, 10)");
 	tr.erase(tr.begin(), tr.begin() + 10);
-	PRINT("erase(begin(), begin() + 10), capacity: " << tr.capacity() << ", size() == " << tr.size())
+	PRINT("erase(begin(), begin() + 10), capacity: " << tr.capacity())
 	printContainer(tr, "erase all");
 
-	tr.assign(10, *(test_random.begin()));
+	tr.assign(10, 5555);
 	tr.clear();
 
 	/* Undefined */
-	if (fork() == 0)
-	{
-		PRINT("vector[2021] is " << tr[2021])
-		std::cout << "erase 10 elements from size " << tr.size();
-		tr.erase(tr.begin() + 5, tr.begin() + 15);
-		exit(0);
-	}
-	wait(0);
+//	if (fork() == 0)
+//	{
+//		PRINT("vector[2021] is " << tr[2021])
+//		std::cout << "erase 10 elements from size " << tr.size();
+//		tr.erase(tr.begin() + 5, tr.begin() + 15);
+//		exit(0);
+//	}
+//	wait(0);
+
+	for (int i = 0; i < 200; ++i)
+	    tr.push_back(i);
+//
+//	T v1(tr);
+//	assert(tr == v1);
 }
 
 /// VISIBILITY todo vector speed
@@ -127,7 +130,6 @@ void listTest(std::string const & filename)
 	PRINT("Empty list front: " << l.front());
 	PRINT("empty list back: " << l.back());
 
-
 	for (int i = 0; i < 10; ++i)
 		l.push_back(i);
 	l.assign(5, 5);
@@ -148,22 +150,20 @@ void listTest(std::string const & filename)
 	wait(0);
 	PRINT("New elem: " << *l.insert(l.begin(), 21))
 
-	std::vector<TEST_TYPE>::iterator it = test_random.begin();
-	while (l.size() < RANDOM_SIZE)
+	for (int i = 0; i < 10; ++i)
 	{
-		l.push_back(*it);
-		++it;
+		l.push_back(++i);
 	}
 	printContainer(l, "pushing 13 random elements");
 	l.sort();
 	printInReverse(l, "sorting 13 random elements");
-	//l.reverse();
-	//printContainer(l, "list.reverse()");
+	l.reverse();
+	printContainer(l, "list.reverse()");
 
-	//while (l.size())
-		//l.pop_back();
-	//PRINT("current size is: " << l.size());
-	//printContainer(l, "list.pop_back() all");
+	while (l.size())
+		l.pop_back();
+	PRINT("current size is: " << l.size());
+	printContainer(l, "list.pop_back() all");
 }
 
 /// VISIBILITY todo lists speed
@@ -193,7 +193,6 @@ void	listBenchmark(std::string const &filename)
 	v.sort();
 	v.merge(v2);
 	v.reverse();
-//	std::cerr << "possible leak " << "\033[31m" << &(*v2.begin()) << "\033[0m" << std::endl;
 
 	/* Deletion */
 	v.clear();
@@ -213,31 +212,85 @@ void 	btreeTest(std::string const & filename)
 #endif
 	T btree;
 
-	std::vector<TEST_TYPE>::iterator it = test_random.begin();
-
-	for ( ; it != test_random.end(); ++it)
-		btree.insert(std::make_pair(*it, *it));
-	int i =0;
-
-	for (i = 0; i < 22; ++i)
-		btree.insert(std::make_pair(i, i));
-	printContainer(btree, "inserting 22 consecutive elements");
-	for (i = 0; i < 11; ++i)
+    int i;
+	for ( i = 0; i < 100000; ++i )
+		btree.insert( std::make_pair(i, i) );
+	printContainer(btree, "inserting 100000 consecutive elements");
+	for ( i = 0; i < 50000; ++i )
 		btree.erase(i);
-	printInReverse(btree, "erasing 22 consecutive elements");
+	printInReverse(btree, "erasing 50000 consecutive elements");
 
-	PRINT("find(21): " << *btree.find(21))
+	PRINT("find(21): " << ((btree.find(21) != btree.end()) ? "found" : "not found"))
+    PRINT("find(50021): " << ((btree.find(50021) != btree.end()) ? "found" : "not found"))
+    PRINT("btree[21]: " << btree[21])
+    PRINT("btree[50021]: " << btree[50021])
+    btree.clear();
+	assert(btree.empty());
 
-	btree.clear();
-	(void)filename;
+	for (i = 0; i < 10; ++i)
+        btree[-1];
+    printContainer(btree, "btree.clear(); cycled btree[-1]");
+    assert(btree.size() == 1);
+
+    for (i = 0; i < 10; ++i)
+        btree.insert(std::make_pair(1, 1));
+    printContainer(btree, "cycled btree.insert(1, 1)");
+    assert(btree.size() == 2);
+
+    for (i = 0; i < 10; ++i)
+        btree.erase(1);
+    printContainer(btree, "cycled btree.erase(1)");
+
+    for (i = 0; i < 50000; ++i)
+        btree.insert(std::make_pair(i, i));
+    assert(btree.lower_bound(50001) == btree.end());
+    assert(btree.lower_bound(21000) != btree.end());
+    assert(btree.upper_bound(50001) == btree.end());
+    assert(btree.upper_bound(21000) != btree.end());
+    PRINT("btree.max_size() " << btree.max_size());
+    T tree2;
+
+    btree.swap(tree2);
+    printContainer(tree2, "btree.swap(tree2)");
+    printContainer(btree, "btree.swap(tree2)");
+    btree.clear();
+    btree.clear();
+    btree.clear();
+    printContainer(btree, "btree.clear() (empty tree)");
+    tree2.clear();
+    tree2.clear();
+    tree2.clear();
+    printContainer(tree2, "tree2.clear() (full tree)");
+
+    for ( i = 0; i < 299999; ++i )
+        btree.insert(std::make_pair(i, i));
+    assert(btree.size() == 299999);
+
+    tree2 = btree;
+
+    assert(tree2 == btree);
+    assert(tree2 >= btree);
+    assert(tree2 <= btree);
+    tree2.erase(1);
+    btree[55555555] = 420;
+    assert(btree != tree2);
+    assert(btree < tree2);
+    assert(tree2 > btree);
+
+    T tree3(tree2);
+    assert(tree2 == tree3);
+    assert(tree3.equal_range(5).first->first <= 5);
+    assert(tree3.equal_range(5).second->first > 5);
+    assert(tree3.equal_range(42).first->first <= 42);
+    assert(tree3.equal_range(42).second->first > 42);
+    assert(tree3.equal_range(9999999).first == tree3.end());
+
+    (void)filename;
 }
-
 
 void sigsegvHandler(int sig)
 {
-	if (sig == SIGSEGV) {
-		PRINT(RED << "sigsegv caught" << RES);
-	}
+	if (sig == SIGSEGV) PRINT(RED << "sigsegv caught" << RES);
 	exit(1);
 }
 
@@ -245,21 +298,21 @@ int main(int argc, char **argv)
 {
 	signal(SIGSEGV, sigsegvHandler);
 
-	randomValues();
-//
+    btreeTest<typeof(std_mp)>(their_file + "map");
 	btreeTest<typeof(my_mp)>(my_file + "map");
+	doDiff("map");
 
 	std::string leaks = "leaks " + std::string(argv[0] + 2);
 	std::cout << std::endl;
 
 #if (TEST_THEIRS == 0)
-//	vector_test<typeof(std_v)>(their_file + "vector");
-//	vector_test<typeof(ft_v)>(my_file + "vector");
-//	doDiff("vector");
-//
-//	listTest<typeof(std_l)>(their_file + "list");
-//	listTest<typeof(ft_l)>(my_file + "list");
-//	doDiff("list");
+	vector_test<typeof(std_v)>(their_file + "vector");
+	vector_test<typeof(ft_v)>(my_file + "vector");
+	doDiff("vector");
+
+	listTest<typeof(std_l)>(their_file + "list");
+	listTest<typeof(ft_l)>(my_file + "list");
+	doDiff("list");
 
 #else
 
