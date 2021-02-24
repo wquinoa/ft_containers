@@ -76,92 +76,32 @@ namespace ft
 
 		/* iterators */
 
-		iterator begin()
-		{
-			return iterator(_beginptr);
-		}
-
-		const_iterator begin() const
-		{
-			return const_iterator(_beginptr);
-		}
-
-		iterator end()
-		{
-			return iterator(_beginptr + _size);
-		}
-
-		const_iterator end() const
-		{
-			return const_iterator(_beginptr + _size);
-		}
-
-		reverse_iterator		rbegin()
-		{
-			return reverse_iterator(_beginptr + (_size - 1));
-		}
-
-		const_reverse_iterator	rbegin() const
-		{
-			return reverse_iterator(_beginptr + (_size - 1));
-		}
-
-		reverse_iterator		rend()
-		{
-			return reverse_iterator(_beginptr - 1);
-		}
-
-		const_reverse_iterator	rend() const
-		{
-			return reverse_iterator(_beginptr - 1);
-		}
+		inline iterator                 begin()         { return iterator(_beginptr); }
+		inline const_iterator           begin() const   { return const_iterator(_beginptr); }
+		inline iterator                 end()           { return iterator(_beginptr + _size); }
+        inline const_iterator           end() const     { return const_iterator(_beginptr + _size); }
+        inline reverse_iterator		    rbegin()        { return reverse_iterator(_beginptr + (_size - 1)); }
+        inline const_reverse_iterator	rbegin() const  { return reverse_iterator(_beginptr + (_size - 1)); }
+		inline reverse_iterator		    rend()          { return reverse_iterator(_beginptr - 1); }
+		inline const_reverse_iterator	rend() const    { return reverse_iterator(_beginptr - 1); }
 
 		/* Getters */
 
-		size_type	size() const
-		{
-			return _size;
-		}
-
-		size_type	max_size() const
-		{
-			return _alloc.max_size();
-		}
-
-		size_type	capacity() const
-		{
-			return _capacity;
-		}
-
-		bool	empty() const
-		{
-			return (_size == 0);
-		}
+		inline size_type	size() const        { return _size; }
+		inline size_type	max_size() const    { return _alloc.max_size(); }
+		inline size_type	capacity() const    { return _capacity; }
+		inline bool	        empty() const       { return (_size == 0); }
 
 		/* Memory management */
 
-//		void nearestpow(size_type &n)
-//		{
-//			n -= 1;
-//			n = n | (n >> 1);
-//			n = n | (n >> 2);
-//			n = n | (n >> 4);
-//			n = n | (n >> 8);
-//			n = n | (n >> 16);
-//			n += 1;
-//		}
-
-		void reserve(size_type n)
+		void        reserve(size_type n)
 		{
 			if (n > _capacity)
 			{
-				//nearestpow(n);
-
 				_capacity = n;
 				pointer tmp = new value_type[n];
 				for (size_t i = 0; i < _size; ++i)
 					tmp[i] = _beginptr[i];
-				//::memmove(tmp, _beginptr, _size * sizeof(value_type));
 				delete[] _beginptr;
 				_beginptr = tmp;
 			}
@@ -177,19 +117,17 @@ namespace ft
 			{
 				reserve(n);
 				insert(end(), n - _size, val);
-//				if (capacity() > n)
-//					_capacity = n;
 			}
 		}
 
-		void clear()
+		inline void clear()
 		{
 			_size = 0;
 		}
 
 		/* Addition - removal */
 
-		void push_back(const value_type &n)
+		void        push_back(const value_type &n)
 		{
 			if (_size == _capacity)
 				reserve(_capacity * 2);
@@ -197,13 +135,13 @@ namespace ft
 			_size++;
 		}
 
-		void pop_back()
+		inline void pop_back()
 		{
 			_size--;
 		}
 
 		template <class InputIt>
-		void assign(InputIt from, InputIt to,
+		void        assign(InputIt from, InputIt to,
 			  typename ft::has_iterator_category<InputIt>::value * = false)
 		{
 			clear();
@@ -220,39 +158,8 @@ namespace ft
 			insert(begin(), n, val);
 		}
 
-		void insert(iterator position, size_type n, const value_type &val)
+		void        insert(iterator position, size_type n, const value_type &val)
 		{
-/*
-			difference_type to_pos = position - begin();
-			difference_type to_end = _size - to_pos;
-#ifdef ft_DEBUG
-			PRINT("copy " << to_end * sizeof(value_type) << " bytes")
-			PRINT("from index: " << to_pos)
-			PRINT("to index: " << to_pos + n)
-			PRINT("size b4 copy is " << _size)
-			PRINT("size + n is " << _size + n)
-#endif
-			while (_capacity < (_size + n))
-				reserve(_capacity * 2);
-
-			// copy old values to new pos
-			::memmove(_beginptr + to_pos + n, _beginptr + to_pos, to_end * sizeof(value_type));
-#ifdef ft_DEBUG
-			PRINT("copied values: ")
-			for (int i = 0; i < _size; ++i)
-				std::cout << _beginptr[i + to_pos + n] << " ";
-			PRINT("")
-			PRINT("to indices: ")
-			for (int i = 0; i < _size; ++i)
-				std::cout << i + to_pos + n << " ";
-			PRINT("")
-#endif
-			// add new values to requested pos
-			_size += n;
-			for ( ; n > 0; --n)
-				_beginptr[to_pos + n - 1] = val;
-				*/
-
 			Vector		tmp(position, end());
 			iterator	it;
 
@@ -265,7 +172,7 @@ namespace ft
 				push_back(*it);
 		}
 
-		iterator insert(iterator position, const value_type &val)
+		iterator    insert(iterator position, const value_type &val)
 		{
 			insert(position, 1, val);
 			return (position);
@@ -273,16 +180,6 @@ namespace ft
 
 		iterator	erase(iterator first, iterator last)
 		{
-			/*
-			difference_type copy_to = first - begin();
-			difference_type copy_from = last - begin();
-			difference_type copy_size = end() - last;
-
-			// copy (end - last) elements to first
-			::memmove(_beginptr + copy_to, _beginptr + copy_from, copy_size * sizeof(value_type));
-			_size -= copy_from - copy_to;
-			return last;
-			*/
 			iterator ret = last;
 
 			for ( ; last != end(); ++first, ++last)
@@ -298,51 +195,55 @@ namespace ft
 
 		/* Access */
 
-		reference		at(size_type n)
+		inline reference	    at(size_type n)
 		{
 			if (n >= _size)
 				throw std::out_of_range("index out of range");
 			return _beginptr[n];
 		}
 
-		const_reference	at(size_type n) const
+		inline const_reference	at(size_type n) const
 		{
 			if (n >= _size)
 				throw std::out_of_range("index out of range");
 			return _beginptr[n];
 		}
 
-		reference		operator[](size_type n)
-		{
-			return _beginptr[n];
-		}
+		void    swap(Vector<T> &other)
+        {
+		    ft::swap(_size, other._size);
+		    ft::swap(_beginptr, other._beginptr);
+		    ft::swap(_capacity, other._capacity);
+		    ft::swap(_alloc, other._alloc);
+        }
 
-		const_reference	operator[](size_type n) const
-		{
-			return _beginptr[n];
-		}
+        inline reference		operator[](size_type n)         { return _beginptr[n]; }
+		inline const_reference	operator[](size_type n) const   { return _beginptr[n]; }
+		inline reference		front()                         { return *_beginptr; }
+		inline const_reference	front() const                   { return *_beginptr; }
+		inline reference		back()                          { return _beginptr[_size - 1]; }
+		inline const_reference	back() const                    { return _beginptr[_size - 1]; }
 
-		reference		front()
-		{
-			return *_beginptr;
-		}
+		/* Relational */
 
-		const_reference	front() const
-		{
-			return *_beginptr;
-		}
+        friend bool operator==(const Vector &lhs, const Vector &rhs)
+        {
+            return ft::lexicographical_equal(lhs.begin(), lhs.end(), rhs.begin(), rhs.end());
+        }
 
-		reference		back()
-		{
-			return _beginptr[_size - 1];
-		}
+        friend bool operator< (const Vector &lhs, const Vector &rhs)
+        {
+            return ft::lexicographical_less(lhs.begin(), lhs.end(), rhs.begin(), rhs.end());
+        }
 
-		const_reference	back() const
-		{
-			return _beginptr[_size - 1];
-		}
-
+        friend bool operator> (const Vector &lhs, const Vector &rhs) { return rhs < lhs; }
+        friend bool operator<=(const Vector &lhs, const Vector &rhs) { return not (rhs < lhs); }
+        friend bool operator>=(const Vector &lhs, const Vector &rhs) { return not (lhs < rhs); }
+        friend bool operator!=(const Vector &lhs, const Vector &rhs) { return not (rhs == lhs); }
 	};
+
+    template< class T, class Alloc >
+    void swap( ft::Vector<T,Alloc>& lhs, ft::Vector<T,Alloc>& rhs ) { lhs.swap(rhs); }
 }
 
 #endif //FT_CONTAINERS__VECTOR_HPP_

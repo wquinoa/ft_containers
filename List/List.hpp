@@ -8,11 +8,9 @@
 # include "DNode.hpp"
 # include "Algorithm.hpp"
 # include <memory>
-# include <unistd.h>
 
 namespace ft
 {
-
 	template<typename T, typename Pointer, typename Reference>
 	class BidirectionalIterator;
 
@@ -35,9 +33,9 @@ namespace ft
 		typedef ft::ReverseIterator<const_iterator> 				const_reverse_iterator;
 
 	 private:
-		node *_endptr;
-		size_type _size;
-		allocator_type _alloc;
+		node                *_endptr;
+		size_type           _size;
+		allocator_type      _alloc;
 
 		void				createEndNode();
 		node				*erase_ptr(node *ptr);
@@ -60,12 +58,11 @@ namespace ft
 
 		~List();
 
-		/*
-		 *  VISIBILITY todo Element access
-		 */
+		/***
+		 ***  VISIBILITY todo Element access
+		 ***/
 
 		iterator 			end()			{ return iterator(_endptr); }
-		//const_iterator 		end() const 	{ return const_iterator(_endptr); }
 		reverse_iterator 	rend()			{ return reverse_iterator(_endptr); }
 		iterator 			begin()			{ return iterator(_endptr->next); }
 		reverse_iterator 	rbegin()		{ return reverse_iterator(_endptr->prev); }
@@ -137,9 +134,9 @@ namespace ft
 		friend bool operator<(const List &lhs, const List &rhs);
 		friend bool operator>(const List &lhs, const List &rhs);
 		friend bool operator<=(const List &lhs, const List &rhs);
+		friend bool operator>=(const List &lhs, const List &rhs);
 		bool operator==(const List &rhs) const;
 		bool operator!=(const List &rhs) const;
-		friend bool operator>=(const List &lhs, const List &rhs);
 	};
 
 	///  VISIBILITY todo Private utility members
@@ -224,7 +221,6 @@ namespace ft
 	}
 
 	///   VISIBILITY todo Copliens
-
 
 	template<class T, class Allocator>
 	List<T, Allocator>::List() : _size(), _alloc()
@@ -361,14 +357,6 @@ namespace ft
 	List<T, Allocator>::insert(List::iterator pos, const value_type &val)
 	{
 		node *elem = new node(val);
-
-		/* the real insert:
-		 *
-		 * 	   elem
-		 * 	  /	   \
-		 *   /	    \
-		 *  pos- - -pos->next;
-		 */
 
 		elem->prev = pos.ptr;
 		elem->next = pos.ptr->next;
@@ -595,13 +583,13 @@ namespace ft
 	template<class T, class Allocator>
 	bool operator<= (const List<T, Allocator> &lhs, const List<T, Allocator> &rhs)
 	{
-		return !(rhs < lhs);
+		return not (rhs < lhs);
 	}
 
 	template<class T, class Allocator>
 	bool operator>= (const List<T, Allocator> &lhs, const List<T, Allocator> &rhs)
 	{
-		return !(lhs < rhs);
+		return  not (lhs < rhs);
 	}
 
 	template<class T, class Allocator>
@@ -613,7 +601,7 @@ namespace ft
 	template<class T, class Allocator>
 	bool List<T, Allocator>::operator!= (const List &rhs) const
 	{
-		return !(rhs == *this);
+		return not (rhs == *this);
 	}
 
 };

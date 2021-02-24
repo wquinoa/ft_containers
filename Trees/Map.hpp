@@ -58,7 +58,7 @@ namespace ft
 				this->clear();
 				this->_alloc = copy._alloc;
 				this->_comp = copy._comp;
-				this->insert(copy.begin(), copy.end());
+	    		this->insert(copy.begin(), copy.end());
 			}
 			return (*this);
 		}
@@ -101,14 +101,51 @@ namespace ft
 		}
 
 		template<class InputIt>
-		void insert(InputIt first, InputIt last, typename has_iterator_category<InputIt>::value = false)
+		void insert(InputIt first, InputIt last)//, typename ft::has_iterator_category<InputIt>::value = false)
 		{
-			while (first != last) {
+			while (first != last)
+			{
 				insert(*first);
 				++first;
 			}
 		}
-	};
+    };
+
+    template <class Key, class Value, class Compare, class Alloc>
+    bool operator== (const Map<Key, Value, Compare, Alloc> &lhs, const Map<Key, Value, Compare, Alloc> &rhs)
+    {
+        return  ft::lexicographical_equal(lhs.begin(), lhs.end(), rhs.begin(), rhs.end());
+    }
+
+    template <class Key, class Value, class Compare, class Alloc>
+    bool operator!= (const Map<Key, Value, Compare, Alloc> &lhs, const Map<Key, Value, Compare, Alloc> &rhs)
+    {
+        return not (lhs == rhs);
+    }
+
+    template <class Key, class Value, class Compare, class Alloc>
+    bool operator<  (const Map<Key, Value, Compare, Alloc> &lhs, const Map<Key, Value, Compare, Alloc> &rhs)
+    {
+        return ft::lexicographical_less(lhs.begin(), lhs.end(), rhs.begin(), rhs.end());
+    }
+
+    template <class Key, class Value, class Compare, class Alloc>
+    bool operator>  (const Map<Key, Value, Compare, Alloc> &lhs, const Map<Key, Value, Compare, Alloc> &rhs)
+    {
+        return (rhs < lhs);
+    }
+
+    template <class Key, class Value, class Compare, class Alloc>
+    bool operator<= (const Map<Key, Value, Compare, Alloc> &lhs, const Map<Key, Value, Compare, Alloc> &rhs)
+    {
+        return not (lhs > rhs);
+    }
+
+    template <class Key, class Value, class Compare, class Alloc>
+    bool operator>= (const Map<Key, Value, Compare, Alloc> &lhs, const Map<Key, Value, Compare, Alloc> &rhs)
+    {
+        return not (lhs < rhs);
+    }
 }
 
 #endif //FT_CONTAINERS_MAP_HPP

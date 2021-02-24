@@ -66,7 +66,6 @@ namespace ft
 		{ return this == parent->left; }
 
 		RBNode *nextn();
-
 		RBNode *prevn();
 
 	 private:
@@ -123,6 +122,8 @@ namespace ft
 	{
 		RBNode *it(this);
 
+		if (!it)
+            return last;
 		if (it->right)
 		{
 			it = it->right;
@@ -133,7 +134,7 @@ namespace ft
 			RBNode *tmp = it;
 
 			it = it->parent;
-			while (it->left != tmp)
+			while (it and it->left != tmp)
 			{
 				tmp = it;
 				it = it->parent;

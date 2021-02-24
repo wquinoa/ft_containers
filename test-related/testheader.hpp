@@ -5,18 +5,26 @@
 #ifndef FT_CONTAINERS_TESTHEADER_HPP
 #define FT_CONTAINERS_TESTHEADER_HPP
 
-#include <iostream>
-#include <string>
-#include <sstream>
-#include <map>
-#include <vector>
-#include <list>
+# include <iostream>
+# include <string>
+# include <sstream>
+# include <iomanip>
+
+# include <map>
+# include <list>
+# include <vector>
+# include <stack>
+# include <queue>
+
+# include <unistd.h>
 
 # include "Trees/Map.hpp"
 # include "List/List.hpp"
 # include "Vector.hpp"
+# include "Stack.hpp"
+# include "Queue.hpp"
 
-# include "Logger.hpp"
+# include "test-related/Logger.hpp"
 # include "BidirectionalIterator.hpp"
 
 # define RANDOM_SIZE 12
@@ -79,8 +87,15 @@ void	doDiff(const char *type)
 template <class T1, class T2>
 std::ostream &operator<< (std::ostream &os, const ft::pair<T1, T2> p)
 {
-	os << '[' << p.first << ',' << p.second << ']';
+	os << '{' << p.first << ',' << p.second << '}';
 	return os;
+}
+
+template <class T1, class T2>
+std::ostream &operator<< (std::ostream &os, const std::pair<T1, T2> p)
+{
+    os << '{' << p.first << ',' << p.second << '}';
+    return os;
 }
 
 template <typename T>

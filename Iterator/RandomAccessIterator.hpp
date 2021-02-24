@@ -109,15 +109,8 @@ namespace ft
 			return *this;
 		}
 
-		reference	operator* () const
-		{
-			return *ptr;
-		}
-
-		pointer		operator-> ()
-		{
-			return *&ptr;
-		}
+		reference	operator* () const  { return *ptr; }
+		pointer		operator-> ()       { return *&ptr; }
 
 		template<typename T2, typename P, typename R>
 		friend inline bool operator!=(const _self& lhs, const RandomAccessIterator<T2, P, R>& rhs)
