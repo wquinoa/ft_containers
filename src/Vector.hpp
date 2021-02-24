@@ -69,6 +69,20 @@ namespace ft
 			*this = copy;
 		}
 
+		Vector &operator= (const Vector &copy)
+		{
+			if (this != &copy)
+			{
+				_size = copy._size;
+				_capacity = copy._capacity;
+				_alloc = copy._alloc;
+				_beginptr = new value_type[_capacity];
+				for (size_type i = 0; i < _size; ++i)
+					_beginptr[i] = copy._beginptr[i];
+			}
+			return (*this);
+		}
+
 		~Vector()
 		{
 			delete[] _beginptr;

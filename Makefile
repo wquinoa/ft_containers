@@ -3,7 +3,7 @@ SRC := main.cpp
 OBJ := $(SRC:.cpp=.o)
 
 IDIRS := Iterator Misc List Trees
-INCL := $(foreach d, $(IDIRS), -I $d) -I .
+INCL := $(foreach d, $(addprefix src/, $(IDIRS)), -I $d) -I src -I test_related
 
 CXX = clang++
 CXXFLAGS = -Wall -Werror -Wextra $(INCL)

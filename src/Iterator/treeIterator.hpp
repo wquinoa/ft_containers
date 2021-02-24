@@ -6,7 +6,7 @@
 #define FT_CONTAINERS_TREEITERATOR_HPP
 
 #include "Iterator.hpp"
-#include "Trees/RBNode.hpp"
+#include "RBNode.hpp"
 
 namespace ft
 {

@@ -18,13 +18,13 @@
 
 # include <unistd.h>
 
-# include "Trees/Map.hpp"
-# include "List/List.hpp"
+# include "Map.hpp"
+# include "List.hpp"
 # include "Vector.hpp"
 # include "Stack.hpp"
 # include "Queue.hpp"
 
-# include "test-related/Logger.hpp"
+# include "Logger.hpp"
 # include "BidirectionalIterator.hpp"
 
 # define RANDOM_SIZE 12
@@ -42,14 +42,22 @@ static std::stringstream leak_addr;
 
 typedef std::vector<TEST_TYPE> std_v;
 typedef ft::Vector<TEST_TYPE> ft_v;
+
 typedef std::list<TEST_TYPE> std_l;
 typedef ft::List<TEST_TYPE> ft_l;
+
 typedef std::map<TEST_TYPE, TEST_TYPE> std_mp;
-typedef ft::Map<TEST_TYPE, TEST_TYPE> my_mp;
+typedef ft::Map<TEST_TYPE, TEST_TYPE> ft_mp;
+
+typedef std::queue<TEST_TYPE> std_q;
+typedef ft::Queue<TEST_TYPE> ft_q;
+
+typedef std::stack<TEST_TYPE> std_st;
+typedef ft::Stack<TEST_TYPE> ft_st;
+
 
 std::string my_file("ft_");
 std::string their_file("std_");
-std::string diff("diff " + my_file + "* " + their_file + "* ");
 
 void	randomValues()
 {
@@ -74,6 +82,7 @@ void	randomValues()
 
 void	doDiff(const char *type)
 {
+	std::string diff("diff " + my_file + type + ' ' + their_file + type);
 	PRINT(diff);
 	PRINT("\033[0;37m" << " -----------  diff ----------- \n")
 	system(diff.c_str());

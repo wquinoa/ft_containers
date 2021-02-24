@@ -4,9 +4,9 @@
 
 # include <memory>
 # include "treeIterator.hpp"
-# include "Trees/pair.hpp"
+# include "pair.hpp"
 # include "Algorithm.hpp"
-# include "test-related/testheader.hpp"
+# include "testheader.hpp"
 
 namespace ft
 {

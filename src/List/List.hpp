@@ -48,13 +48,15 @@ namespace ft
 
 		List();
 		explicit List(const allocator_type &alloc);
-		explicit List(size_type n, const value_type &val = value_type(),
-				const allocator_type &alloc = allocator_type());
+		explicit List(size_type n, const value_type &val = value_type(), const allocator_type &alloc = allocator_type());
 		explicit List(size_type n);
-		template<class InputIt> List(InputIt first, InputIt last,
-				const allocator_type &alloc = allocator_type(),
-				typename ft::has_iterator_category<InputIt>::value = false
-				);
+
+		template<class InputIt>
+		List(InputIt first, InputIt last, const allocator_type &alloc = allocator_type(),
+				typename ft::has_iterator_category<InputIt>::value = false);
+
+		List( const List& other );
+		List &operator= (const List &other);
 
 		~List();
 
@@ -63,8 +65,10 @@ namespace ft
 		 ***/
 
 		iterator 			end()			{ return iterator(_endptr); }
+		const_iterator 		end() const		{ return iterator(_endptr); }
 		reverse_iterator 	rend()			{ return reverse_iterator(_endptr); }
 		iterator 			begin()			{ return iterator(_endptr->next); }
+		const_iterator 		begin() const	{ return iterator(_endptr->next); }
 		reverse_iterator 	rbegin()		{ return reverse_iterator(_endptr->prev); }
 		reference 			front()			{ return _endptr->next->data; }
 		const_reference		front() const	{ return _endptr->next->data; }
@@ -126,17 +130,26 @@ namespace ft
 		template< class Compare >
 		void				sort(Compare comparator);
 		void				sort();
+		void				swap(List &copy);
 
 		/*
 		 *  Relational operators
 		 */
 
-		friend bool operator<(const List &lhs, const List &rhs);
-		friend bool operator>(const List &lhs, const List &rhs);
-		friend bool operator<=(const List &lhs, const List &rhs);
-		friend bool operator>=(const List &lhs, const List &rhs);
-		bool operator==(const List &rhs) const;
-		bool operator!=(const List &rhs) const;
+		friend bool operator==(const List &lhs, const List &rhs)
+		{
+			return ft::lexicographical_equal(lhs.begin(), lhs.end(), rhs.begin(), rhs.end());
+		}
+
+		friend bool operator< (const List &lhs, const List &rhs)
+		{
+			return ft::lexicographical_less(lhs.begin(), lhs.end(), rhs.begin(), rhs.end());
+		}
+
+		friend bool operator> (const List &lhs, const List &rhs) { return rhs < lhs; }
+		friend bool operator<=(const List &lhs, const List &rhs) { return not (rhs < lhs); }
+		friend bool operator>=(const List &lhs, const List &rhs) { return not (lhs < rhs); }
+		friend bool operator!=(const List &lhs, const List &rhs) { return not (rhs == lhs); }
 	};
 
 	///  VISIBILITY todo Private utility members
@@ -223,7 +236,7 @@ namespace ft
 	///   VISIBILITY todo Copliens
 
 	template<class T, class Allocator>
-	List<T, Allocator>::List() : _size(), _alloc()
+	List<T, Allocator>::List() : _endptr(), _size(), _alloc()
 	{
 		createEndNode();
 	}
@@ -259,6 +272,31 @@ namespace ft
 		createEndNode();
 		assign(n, val);
 	}
+
+	template<class T, class Allocator>
+	List<T, Allocator> &List<T, Allocator>::operator=(const List &other)
+	{
+		if (this != &other)
+		{
+			createEndNode();
+			clear();
+			_alloc = other._alloc;
+			_endptr->next = _endptr;
+			_endptr->prev = _endptr;
+			const_iterator it = other.begin();
+
+			for (; it != other.end(); ++it)
+				push_back(*it);
+		}
+		return (*this);
+	}
+
+	template<class T, class Allocator>
+	List<T, Allocator>::List(const List &other)
+	{
+		*this = other;
+	}
+
 
 	template<class T, class Allocator>
 	List<T, Allocator>::~List()
@@ -324,7 +362,7 @@ namespace ft
 	template<class T, class Allocator>
 	void List<T, Allocator>::clear()
 	{
-		if (not empty())
+		if (_size)
 			erase(begin(), end());
 	}
 
@@ -566,44 +604,16 @@ namespace ft
 		sort(ft::less<value_type>());
 	}
 
-	///   VISIBILITY todo relational operators
-
 	template<class T, class Allocator>
-	bool operator< (const List<T, Allocator> &lhs, const List<T, Allocator> &rhs)
+	void List<T, Allocator>::swap(List &other)
 	{
-		return lexicographical_less(lhs.begin(), lhs.end(), rhs.begin(), rhs.end());
+		ft::swap(_endptr, other._endptr);
+		ft::swap(_size, other._size);
+		ft::swap(_alloc, other._alloc);
 	}
 
-	template<class T, class Allocator>
-	bool operator> (const List<T, Allocator> &lhs, const List<T, Allocator> &rhs)
-	{
-		return rhs < lhs;
-	}
-
-	template<class T, class Allocator>
-	bool operator<= (const List<T, Allocator> &lhs, const List<T, Allocator> &rhs)
-	{
-		return not (rhs < lhs);
-	}
-
-	template<class T, class Allocator>
-	bool operator>= (const List<T, Allocator> &lhs, const List<T, Allocator> &rhs)
-	{
-		return  not (lhs < rhs);
-	}
-
-	template<class T, class Allocator>
-	bool List<T, Allocator>::operator== (const List &rhs) const
-	{
-		return lexicographical_equal(begin(), end(), rhs.begin(), rhs.end());
-	}
-
-	template<class T, class Allocator>
-	bool List<T, Allocator>::operator!= (const List &rhs) const
-	{
-		return not (rhs == *this);
-	}
-
+	template< class T, class Alloc >
+	void swap( ft::List<T,Alloc>& lhs, ft::List<T,Alloc>& rhs ) { lhs.swap(rhs); }
 };
 
 # include "BidirectionalIterator.hpp"

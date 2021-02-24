@@ -75,14 +75,14 @@ namespace ft
 	template <typename _InputIt1, typename _InputIt2>
 	bool lexicographical_less(_InputIt1 begin1, _InputIt1 end1, _InputIt2 begin2, _InputIt2 end2)
 	{
-		for ( ; begin1 != end1; ++begin1, ++begin2)
+		for ( ; (begin1 != end1) && (begin2 != end2); ++begin1, ++begin2 )
 		{
-			if (begin2 == end2 or *begin1 > *begin2)
-				break ;
 			if (*begin1 < *begin2)
 				return (true);
+			if (*begin2 > *begin1)
+				return (false);
 		}
-		return (false);
+		return (begin1 == end1) && (begin2 != end2);
 	}
 
 }

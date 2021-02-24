@@ -12,18 +12,19 @@ namespace ft
     class Queue
     {
     public:
-        typedef Container       container_type;
-        using typename Container::value_type;
-        using typename Container::size_type;
-        using typename Container::reference;
-        using typename Container::const_reference;
+		typedef Container       container_type;
+		typedef T				value_type;
+		typedef size_t			size_type;
+		typedef T &				reference;
+		typedef const T & 		const_reference;
 
     protected:
         container_type c;
 
     public:
-        explicit Queue(const Container &cont = Container()) : c(cont)
+        explicit Queue(const Container &cont = Container()) : c()
         {
+			(void)cont;
         }
 
         Queue &operator= (const Queue &copy)
@@ -43,8 +44,8 @@ namespace ft
         inline bool             empty() const   { return c.empty(); }
         inline size_type        size() const    { return c.size(); }
 
-        inline void push(const reference val)   { return c.push_back(val); }
-        inline void pop()                       { return c.pop_front(); }
+        inline void push(const_reference val)   { c.push_back(val); }
+        inline void pop()                       { c.pop_front(); }
         inline void swap(Queue &other)          { c.swap(other.c); }
 
         inline friend bool operator< (const Queue &lhs, const Queue &rhs) { return lhs.c < rhs.c; }

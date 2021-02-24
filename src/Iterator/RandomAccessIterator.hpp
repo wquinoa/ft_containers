@@ -118,6 +118,12 @@ namespace ft
 			return lhs.ptr != rhs.ptr;
 		}
 
+		template<typename T2, typename P, typename R>
+		friend inline bool operator==(const _self& lhs, const RandomAccessIterator<T2, P, R>& rhs)
+		{
+			return not (lhs.ptr == rhs.ptr);
+		}
+
 		template<typename T2, typename P, typename R, class C>
 		friend inline bool operator>(const _self& lhs, const RandomAccessIterator<T2, P, R>& rhs)
 		{

@@ -13,10 +13,10 @@ namespace ft
     {
     public:
         typedef Container       container_type;
-        using typename Container::value_type;
-        using typename Container::size_type;
-        using typename Container::reference;
-        using typename Container::const_reference;
+        typedef T				value_type;
+        typedef size_t			size_type;
+		typedef T &				reference;
+		typedef const T & 		const_reference;
 
     protected:
         container_type c;
@@ -41,7 +41,7 @@ namespace ft
         inline bool             empty() const   { return c.empty(); }
         inline size_type        size() const    { return c.size(); }
 
-        inline void push(const reference val)   { return c.push_back(val); }
+        inline void push(const_reference val)   { return c.push_back(val); }
         inline void pop()                       { return c.pop_back(); }
         inline void swap(Stack &other)          { c.swap(other.c); }
 

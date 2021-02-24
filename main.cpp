@@ -2,87 +2,110 @@
 // Created by Filipp Ewseew on 1/30/21.
 //
 
-#include "test-related/testheader.hpp"
+#include "test_related/testheader.hpp"
 
 /// VISIBILITY  todo vector test
 
 template <typename T>
 void vector_test(std::string const &filename)
 {
-	T tr;
+	T vec;
 #if (C_LOG == 1)
 	Logger log(filename, "base test");
 #endif
 	(void)filename;
-	PRINT("Current capacity is: " << tr.capacity())
+	PRINT("Current capacity is: " << vec.capacity())
 
 //	if (fork() == 0)
 //	{
-//		PRINT("empty vector.front() " << tr.front())
-//		PRINT("empty vector.back(): " << tr.back())
+//		PRINT("empty vector.front() " << vec.front())
+//		PRINT("empty vector.back(): " << vec.back())
 //		exit(1);
 //	}
 //	wait(0);
 
 		/* Reserve basic */
-	tr.reserve(0);
-	PRINT("Capacity after reserve(0) is " << tr.capacity())
+	vec.reserve(0);
+	PRINT("Capacity after reserve(0) is " << vec.capacity())
 
-	tr.reserve(4);
-	PRINT("Capacity after reserve(4) is " << tr.capacity())
+	vec.reserve(4);
+	PRINT("Capacity after reserve(4) is " << vec.capacity())
 
 		/* Insertion-removal-access basic */
 	for  (int i = 0; i < 12; ++i)
-		tr.push_back(i);
+		vec.push_back(i);
 
-	printContainer(tr,  "several push_back()");
+	printContainer(vec,  "several push_back()");
 
-	tr.insert(tr.begin() + 5, 10, 8);
-	printContainer(tr, "insert(begin + 5, 10, n)");
-	tr.erase(tr.begin() + 5, tr.begin() + 14);
-	printContainer(tr, "erase(begin + 5, begin + 14)");
+	vec.insert(vec.begin() + 5, 10, 8);
+	printContainer(vec, "insert(begin + 5, 10, n)");
+	vec.erase(vec.begin() + 5, vec.begin() + 14);
+	printContainer(vec, "erase(begin + 5, begin + 14)");
 
-	tr.pop_back();
-	printContainer(tr, "pop_back");
-	PRINT("current size is: " << tr.size())
-	PRINT("vector.at(5) is " << tr.at(5))
-	PRINT("vector[2] is " << tr[2])
-	try { tr.at(124); }
+	vec.pop_back();
+	printContainer(vec, "pop_back");
+	PRINT("current size is: " << vec.size())
+	PRINT("vector.at(5) is " << vec.at(5))
+	PRINT("vector[2] is " << vec[2])
+	try { vec.at(124); }
 	catch (std::exception &e) { PRINT("vector.at(124) exception: " << e.what()) };
-	PRINT("vector.front() is " << tr.front())
-	PRINT("vector.back() is " << tr.back())
+	PRINT("vector.front() is " << vec.front())
+	PRINT("vector.back() is " << vec.back())
 
 
-	PRINT("Current capacity is: " << tr.capacity())
-	tr.resize(2000);
-	PRINT("Resize(2000), capacity: " << tr.capacity() << ", size() == " << tr.size())
-	printContainer(tr, "Reserve(2000)");
-	tr.clear();
-	PRINT("clear(), capacity: " << tr.capacity() << ", size() == " << tr.size())
-	tr.assign(10, 9);
-	printContainer(tr, "assign(10, 10)");
-	tr.erase(tr.begin(), tr.begin() + 10);
-	PRINT("erase(begin(), begin() + 10), capacity: " << tr.capacity())
-	printContainer(tr, "erase all");
+	PRINT("Current capacity is: " << vec.capacity())
+	vec.resize(2000);
+	PRINT("Resize(2000), capacity: " << vec.capacity() << ", size() == " << vec.size())
+	printContainer(vec, "Reserve(2000)");
+	vec.clear();
+	PRINT("clear(), capacity: " << vec.capacity() << ", size() == " << vec.size())
+	vec.assign(10, 10);
+	printContainer(vec, "assign(10, 10)");
+	vec.erase(vec.begin(), vec.begin() + 9);
+	PRINT("erase(begin(), begin() + 9), capacity: " << vec.capacity())
+	printContainer(vec, "erase all");
 
-	tr.assign(10, 5555);
-	tr.clear();
+	vec.assign(10, 5555);
+	vec.clear();
 
 	/* Undefined */
-//	if (fork() == 0)
-//	{
-//		PRINT("vector[2021] is " << tr[2021])
-//		std::cout << "erase 10 elements from size " << tr.size();
-//		tr.erase(tr.begin() + 5, tr.begin() + 15);
-//		exit(0);
-//	}
-//	wait(0);
+	if (fork() == 0)
+	{
+		PRINT("vector[2021] is " << vec[2021])
+		std::cout << "erase 10 elements from size " << vec.size();
+		vec.erase(vec.begin() + 5, vec.begin() + 15);
+		exit(0);
+	}
+	wait(0);
 
-	for (int i = 0; i < 200; ++i)
-	    tr.push_back(i);
-//
-//	T v1(tr);
-//	assert(tr == v1);
+
+	{
+		for (int i = 0; i < 10; ++i)
+			vec.push_back(i);
+		T vcopy(vec);
+		T vempty;
+		assert(vec == vcopy);
+		vempty.swap(vec);
+		assert(vec.empty());
+		assert(vempty == vcopy);
+	}
+	{
+		T v1;
+		T v2;
+
+		for (int i = 0; i < 10; ++i)
+		{
+			v1.push_back(i);
+			v2.push_back(0);
+		}
+
+		assert(v1 != v2);
+		assert(v1 > v2);
+		assert(v1 >= v2);
+		assert(v2 < v1);
+		assert(v2 <= v1);
+	}
+
 }
 
 /// VISIBILITY todo vector speed
@@ -138,22 +161,19 @@ void listTest(std::string const & filename)
 	l.clear();
 	PRINT("Size after list.clear(): " << l.size());
 
-
-	std::cerr << RED << "DOUBLE FREE ON STD LIST" << RES << std::endl;
-	if (fork() == 0)
-	{
-		PRINT("Erasing from an empty list, size: " << l.size());
-		l.erase(l.begin());
-
-		exit(0);
-	}
+//	std::cerr << RED << "DOUBLE FREE ON STD LIST" << RES << std::endl;
+//	if (fork() == 0)
+//	{
+//		PRINT("Erasing from an empty list, size: " << l.size());
+//		l.erase(l.begin());
+//
+//		exit(0);
+//	}
 	wait(0);
 	PRINT("New elem: " << *l.insert(l.begin(), 21))
 
 	for (int i = 0; i < 10; ++i)
-	{
 		l.push_back(++i);
-	}
 	printContainer(l, "pushing 13 random elements");
 	l.sort();
 	printInReverse(l, "sorting 13 random elements");
@@ -164,6 +184,47 @@ void listTest(std::string const & filename)
 		l.pop_back();
 	PRINT("current size is: " << l.size());
 	printContainer(l, "list.pop_back() all");
+
+	T l2;
+
+	for (int i = 0; i < 10; ++ i)
+	{
+		l.push_back(i);
+		l2.push_back(i + 10);
+	}
+
+	l.merge(l2);
+	printContainer(l, "merge");
+	l2.splice(l2.begin(), l);
+	printContainer(l2, "splice");
+
+	l2.clear();
+	l.clear();
+
+	for (int i = 0; i < 10000 ; ++i)
+		l.push_back(i);
+
+	l2 = l;
+
+	assert (l2 == l);
+	assert (l2 >= l);
+	assert(l2 <= l);
+
+	l.clear();
+	l.push_back(0);
+	l.push_back(0);
+	l.push_back(0);
+	assert(l < l2);
+	assert(l <= l2);
+	assert(l2 >= l);
+	assert(l2 != l);
+	assert(l2 > l);
+	l2.swap(l);
+	assert(l2 != l);
+	assert(l2 < l);
+	l.resize(1);
+	assert(l.size() == 1);
+	assert(l.front() == 0);
 }
 
 /// VISIBILITY todo lists speed
@@ -288,6 +349,120 @@ void 	btreeTest(std::string const & filename)
     (void)filename;
 }
 
+// VISIBILITY todo map benchmark
+
+
+template <class T>
+void	mapBenchmark(std::string const &filename)
+{
+	T v;
+	T v2;
+#if (C_LOG == 1)
+	Logger log(filename, "benchmark");
+#endif
+	(void)filename;
+
+	/* Insertion */
+
+	for (int i = 0; i < 619420; ++i)
+		v.insert(std::make_pair(619420 + (i % 2) ? i : -i, i));
+
+	/* Operations */
+
+	for (int i = 0; i < 4242; ++i) {
+		v.lower_bound(i / 2);
+		v.upper_bound(i / 2);
+		v.equal_range(i / 2);
+	}
+
+	/* Deletion */
+	v.clear();
+}
+
+
+template <class T>
+void	stackTest(std::string const &filename)
+{
+	T v;
+#if (C_LOG == 1)
+	Logger log(filename, "base test");
+#endif
+	(void)filename;
+
+	for (int i = 0; i < 10000; ++i) {
+		v.push(i);
+		std::cout << v.top();
+	}
+	std::cout << std::endl;
+
+
+	for (int i = 0; i < 10000; ++i) {
+		v.pop();
+	}
+	assert(v.empty() == true);
+
+
+	T v1;
+	T v2;
+
+	for (int i = 0; i < 10; ++i) {
+		v1.push(i);
+		v2.push(0);
+	}
+
+	assert(v1 != v2);
+	assert(v1 > v2);
+	assert(v1 >= v2);
+	assert(v2 <= v1);
+
+	assert(v2 < v1);
+
+	ft::swap(v1, v2);
+	assert(v1 < v2);
+}
+
+template <class T>
+void	queueTest(std::string const &filename)
+{
+	T v;
+#if (C_LOG == 1)
+	Logger log(filename, "base test");
+#endif
+	(void)filename;
+
+	for (int i = 0; i < 10000; ++i) {
+		v.push(i);
+	}
+	std::cout << v.back();
+	std::cout << std::endl;
+
+
+	for (int i = 0; i < 10000; ++i) {
+		v.pop();
+	}
+	assert(v.empty() == true);
+
+
+
+	T v1;
+	T v2;
+
+	for (int i = 0; i < 10; ++i) {
+		v1.push(i);
+		v2.push(0);
+	}
+
+	assert(v1 != v2);
+	assert(v1 > v2);
+	assert(v1 >= v2);
+	assert(v2 <= v1);
+
+	assert(v2 < v1);
+
+	v1.swap( v2);
+	assert(v2 > v1);
+}
+
 void sigsegvHandler(int sig)
 {
 	if (sig == SIGSEGV) PRINT(RED << "sigsegv caught" << RES);
@@ -298,14 +473,16 @@ int main(int argc, char **argv)
 {
 	signal(SIGSEGV, sigsegvHandler);
 
-    btreeTest<typeof(std_mp)>(their_file + "map");
-	btreeTest<typeof(my_mp)>(my_file + "map");
+
+#if (TEST_THEIRS == 0)
+
+	btreeTest<typeof(std_mp)>(their_file + "map");
+	btreeTest<typeof(ft_mp)>(my_file + "map");
 	doDiff("map");
 
 	std::string leaks = "leaks " + std::string(argv[0] + 2);
 	std::cout << std::endl;
 
-#if (TEST_THEIRS == 0)
 	vector_test<typeof(std_v)>(their_file + "vector");
 	vector_test<typeof(ft_v)>(my_file + "vector");
 	doDiff("vector");
@@ -313,6 +490,14 @@ int main(int argc, char **argv)
 	listTest<typeof(std_l)>(their_file + "list");
 	listTest<typeof(ft_l)>(my_file + "list");
 	doDiff("list");
+
+	queueTest<typeof(std_q)>(their_file + "queue");
+	queueTest<typeof(ft_q)>(my_file + "queue");
+	doDiff("queue");
+
+	stackTest<typeof(std_st)>(their_file + "stack");
+	stackTest<typeof(ft_st)>(my_file + "stack");
+	doDiff("stack");
 
 #else
 
@@ -324,6 +509,10 @@ int main(int argc, char **argv)
 	listBenchmark<typeof(std_l)>(their_file + "list");
 	listBenchmark<typeof(ft_l)>(my_file + "list");
 	doDiff("list");
+
+	mapBenchmark<typeof(std_mp)>(their_file + "map");
+	mapBenchmark<typeof(ft_mp)>(my_file + "map");
+	doDiff("map");
 
 #endif
 //	PRINT("Press enter to run [" << "\033[0;33m" << leaks << "\033[0m" << "]")

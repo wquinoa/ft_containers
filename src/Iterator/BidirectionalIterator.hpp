@@ -5,7 +5,7 @@
 #ifndef FT_CONTAINERS_BIDIRECTIONALITERATOR_HPP
 #define FT_CONTAINERS_BIDIRECTIONALITERATOR_HPP
 # include "Iterator.hpp"
-# include "List/DNode.hpp"
+# include "DNode.hpp"
 
 namespace ft
 {
